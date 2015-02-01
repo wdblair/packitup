@@ -68,15 +68,22 @@ SECTIONS
   .useless        :
   {
       PROVIDE(useless_start = .);
+      *(.useless)
+      PROVIDE(useless_end = .);
   }
   /**
   	This section is where the encrypted payload lies.
+  	
+  	We add one and then align to 16 because AES _always_
+  	adds a pad such that the length of the ciphertext is equal
+  	to the length of the next greater multiple of 16.
   */
-  .payload         : 
+  .payload  : 
   {
-      PROVIDE(payload_start = .);
-     *(.payload)
-      PROVIDE(payload_end = .);
+     PROVIDE(payload_start = .);
+     . += SIZEOF(.useless) ;
+     . += 16;
+     PROVIDE(payload_end = .);
   }
   .pdata   :
   {

@@ -21,9 +21,11 @@ char payload_start;
 extern
 char payload_end;
 
-void *decrypt_payload (void *start, void *end) {
-	return NULL;
-}
+extern
+char useless_start;
+extern
+char useless_end;
+
 
 void show_hex (const char *buf, int len) {
 	/**
@@ -56,11 +58,14 @@ int main (int argc, char *argv[]) {
  
 	printf("Finished loading cipher\n");
 	
-	printf("%016x\n", &payload_start);
-	printf("%016x\n", &payload_end);
+	printf("Target section is at: %016x\n", &useless_start);
+	printf("Payload is at: %016x\n", &payload_start);
 	
-        /* Allow enough space in output buffer for additional block "EVP_MAX_BLOCK_LENGTH"*/
-	int inlen = ((unsigned long)(&payload_end)) - ((unsigned long)(&payload_start));
+	/* Allow enough space in output buffer for additional block "EVP_MAX_BLOCK_LENGTH"*/
+	
+	int inlen = (((unsigned long)(&useless_end)) - ((unsigned long)(&useless_start)));
+	
+	inlen += 16 - (inlen % 16); /** account for padding */
 	
 	printf ("Our encrypted payload has %d bytes\n", inlen);
 	
@@ -71,9 +76,34 @@ int main (int argc, char *argv[]) {
 		
 		void *instr = calloc (inlen + EVP_MAX_BLOCK_LENGTH, 1);
 	*/
-	void *instr = memalign(sysconf(_SC_PAGESIZE), inlen + EVP_MAX_BLOCK_LENGTH);
+	const long pagesize = sysconf(_SC_PAGESIZE);
+	
+	void *instr = memalign(pagesize, inlen + EVP_MAX_BLOCK_LENGTH);
+	
+	
+	/**
+		Find the page that this section lies on
+	*/
+	
+	const long pageoffset = ((unsigned long)instr) % pagesize;
+	
+	/**
+	void *page = (void*)(((unsigned long)instr) - pageoffset);
+	
+	printf("Payload at :%08x\n", instr);	
+	printf("Found page at :%08x\n", page);
+	printf("We are %d bytes away from the page\n", pageoffset);
+
+	if(mprotect (page, outlen, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
+		fprintf(stderr, "mprotect failed!\n");
+		return 1;
+	}
+
+	printf("Page permissions modified!\n");
+	*/
 	
 	void *pack = &payload_start;
+
 	
 	if (!instr) {
 		fprintf (stderr, "Malloc failed!\n");
@@ -85,7 +115,7 @@ int main (int argc, char *argv[]) {
 	printf("\n");
 	
 	/**
-		Decrypt the packet
+		Decrypt the payload
 	*/
 	if(!EVP_DecryptUpdate(&ctx, instr, &outlen, (unsigned char *)pack, inlen)) {
 		/* Error */
@@ -111,16 +141,17 @@ int main (int argc, char *argv[]) {
 	show_hex ((const char *)instr, outlen);
 	printf("\n");
 	
-	if(mprotect (instr, outlen, PROT_READ | PROT_EXEC) < 0) {
+	if(mprotect (instr, outlen, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
 		fprintf(stderr, "mprotect failed!\n");
 		return 1;
 	}
 	
+	/** Run the instructions */
 	void (*p)();
 	
 	p = (void (*)())instr;
 	
 	p();
-	
+		
 	return 0;
 }
