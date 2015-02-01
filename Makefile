@@ -17,7 +17,7 @@ pack.o: pack.c
 	gcc -g -c -o $@ $<
 	
 payload: hello-payload.o pack.o
-	gcc -o $@ hello-payload.o pack.o -T link.x -lcrypto -ldl
+	gcc -o $@ hello-payload.o pack.o -T link.x -lcrypto -ldl -static
 	./transplant.sh
 	
 .phony: clean
