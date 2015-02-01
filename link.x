@@ -65,25 +65,18 @@ SECTIONS
   PROVIDE (etext = .);
   .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) }
   .rodata1        : { *(.rodata1) }
+  /**
+  	This section is where the encrypted payload lies.
+	
+	We add in an extra 16 bytes to account for the padding
+	AES always adds to the ciphertext length  	
+  */
   .useless        :
   {
       PROVIDE(useless_start = .);
       *(.useless)
       PROVIDE(useless_end = .);
-  }
-  /**
-  	This section is where the encrypted payload lies.
-  	
-  	We add one and then align to 16 because AES _always_
-  	adds a pad such that the length of the ciphertext is equal
-  	to the length of the next greater multiple of 16.
-  */
-  .payload  : 
-  {
-     PROVIDE(payload_start = .);
-     . += SIZEOF(.useless) ;
-     . += 16;
-     PROVIDE(payload_end = .);
+      . += 16;
   }
   .pdata   :
   {

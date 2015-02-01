@@ -15,6 +15,7 @@ void payload () {
 	int x = 5;
 	int y = 10;
 	int z = x + y;	
+	printf("5 + 10 = %d\n", z);
 		
 	return;
 }
