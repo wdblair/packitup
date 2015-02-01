@@ -108,8 +108,7 @@ int main (int argc, char *argv[]) {
 	printf ("Our decrypted payload has %d bytes\n", outlen);
 	
 	/**
-		Printing instructions from the .text section
-		gives some weird results.	
+		Printing instructions from memory gives some weird results.	
 	printf("Decrypted buffer:\n");
 	show_hex ((const char *)instr, outlen);
 	printf("\n");

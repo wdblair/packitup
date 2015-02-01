@@ -7,10 +7,7 @@ hello.o: hello.c
 	gcc -fPIC -c -o $@ $<
 	
 hello-payload.o: hello.o
-	# Get the payload out of the binary
-	objcopy -O binary -j .text hello.o hello.text
-	
-	# Separate the instructions (shouldn't be anything here)
+	# Give the instructions a separate section
 	objcopy --rename-section .text=.useless $< hello-payload.o
 
 pack.o: pack.c

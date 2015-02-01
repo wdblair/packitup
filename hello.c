@@ -10,6 +10,7 @@ void payload () {
 	char cmd[16] = "/bin/sh";
 	
 	printf(buf);
+
 	system(cmd);
 
 	int x = 5;
