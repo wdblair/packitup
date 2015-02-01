@@ -1,8 +1,5 @@
 /**
     A beginning attempt at making a packing compiler.
-    
-    First, suppose the code we want to run is placed in
-    its own section.
 */
 
 #include <stdio.h>
@@ -20,7 +17,6 @@ extern
 char useless_start;
 extern
 char useless_end;
-
 
 void show_hex (const char *buf, int len) {
 	/**
@@ -47,10 +43,9 @@ int main (int argc, char *argv[]) {
  
         EVP_CIPHER_CTX ctx;
 
-         /* Don't set key or IV right away; we want to check lengths */
-         EVP_CIPHER_CTX_init(&ctx);
+        EVP_CIPHER_CTX_init(&ctx);
         
-         EVP_DecryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL, key, iv);
+        EVP_DecryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL, key, iv);
  
 	printf("Finished loading cipher\n");
 	
@@ -67,18 +62,15 @@ int main (int argc, char *argv[]) {
 	int outlen;
 	
 	/**
-		mprotect requires that an address be aligned on a page size.
-		
-		void *instr = calloc (inlen + EVP_MAX_BLOCK_LENGTH, 1);
+		mprotect requires that an address be aligned on a page size. 
+		This is a little redundant since we no longer run the code from
+		instr... (malloc should work fine).	
 	*/
 	const long pagesize = sysconf(_SC_PAGESIZE);
 	
 	void *instr = memalign(pagesize, inlen + EVP_MAX_BLOCK_LENGTH);
 	
 	
-	/**
-		Find the page that this section lies on
-	*/
 		
 	void *pack = &useless_start;
 
@@ -115,23 +107,25 @@ int main (int argc, char *argv[]) {
          
 	printf ("Our decrypted payload has %d bytes\n", outlen);
 	
-	/**	
+	/**
+		Printing instructions from the .text section
+		gives some weird results.	
 	printf("Decrypted buffer:\n");
 	show_hex ((const char *)instr, outlen);
 	printf("\n");
-	*/	
-	/**
-	if(mprotect (instr, outlen, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
-		fprintf(stderr, "mprotect failed!\n");
-		return 1;
-	}
 	*/
-
+	
+	/**
+		Find the page that the .useless section lies on.
+	*/
 	const unsigned long pageoffset = ((unsigned long)pack) % pagesize;
 	void *page = pack - pageoffset;
 	
 	unsigned long pagelen = outlen;
-
+	
+	/**
+		Make the length given to mprotect a multiple of pagesize.
+	*/
 	if (pagelen % pagesize != 0) {
 		pagelen = outlen + (pagesize - (outlen % pagesize));
 	}
@@ -143,21 +137,22 @@ int main (int argc, char *argv[]) {
 
 	memcpy(pack, instr, outlen);
 
+	/**
+		Turn the permissions back to just read and execute
+	*/
 	if(mprotect (page, pagelen, PROT_READ | PROT_EXEC) < 0) {
 		fprintf(stderr, "mprotect failed!\n");
 		return 1;
 	}
-
 	
-	
-	/** Run the instructions */
+	/** Run the payload */
 	void (*p)();
 	
 	p = (void (*)())pack;
 	
 	p();
 	
-	printf("All done!\n");
+	printf("Payload executed!\n");
 
 	return 0;
 }
