@@ -32,7 +32,7 @@ dd if=/dev/zero of=./payload bs=1 seek=$target_offset count=$target_size conv=no
 
 # encrypt it
 openssl aes-128-cbc -in payload.text -out payloadsecret.text \
-	-K 000102030405060708090A0B0C0D0E0F -iv 010203040506070
+	-K 000102030405060708090A0B0C0D0E0F -iv 0102030405060708
 
 # put the encrypted info in the right place
 dd if=./payloadsecret.text of=./payload bs=1 seek=$payload_offset count=$payload_size conv=notrunc

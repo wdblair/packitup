@@ -86,22 +86,7 @@ int main (int argc, char *argv[]) {
 	*/
 	
 	const long pageoffset = ((unsigned long)instr) % pagesize;
-	
-	/**
-	void *page = (void*)(((unsigned long)instr) - pageoffset);
-	
-	printf("Payload at :%08x\n", instr);	
-	printf("Found page at :%08x\n", page);
-	printf("We are %d bytes away from the page\n", pageoffset);
-
-	if(mprotect (page, outlen, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
-		fprintf(stderr, "mprotect failed!\n");
-		return 1;
-	}
-
-	printf("Page permissions modified!\n");
-	*/
-	
+		
 	void *pack = &payload_start;
 
 	
