@@ -79,8 +79,6 @@ int main (int argc, char *argv[]) {
 	/**
 		Find the page that this section lies on
 	*/
-	
-	const long pageoffset = ((unsigned long)instr) % pagesize;
 		
 	void *pack = &useless_start;
 
@@ -122,17 +120,44 @@ int main (int argc, char *argv[]) {
 	show_hex ((const char *)instr, outlen);
 	printf("\n");
 	*/	
+	/**
 	if(mprotect (instr, outlen, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
 		fprintf(stderr, "mprotect failed!\n");
 		return 1;
 	}
+	*/
+
+	const unsigned long pageoffset = ((unsigned long)pack) % pagesize;
+	void *page = pack - pageoffset;
+	
+	unsigned long pagelen = outlen;
+
+	if (pagelen % pagesize != 0) {
+		pagelen = outlen + (pagesize - (outlen % pagesize));
+	}
+
+	if(mprotect (page, pagelen, PROT_READ | PROT_WRITE) < 0) {
+		fprintf(stderr, "mprotect failed!\n");
+		return 1;
+	}
+
+	memcpy(pack, instr, outlen);
+
+	if(mprotect (page, pagelen, PROT_READ | PROT_EXEC) < 0) {
+		fprintf(stderr, "mprotect failed!\n");
+		return 1;
+	}
+
+	
 	
 	/** Run the instructions */
 	void (*p)();
 	
-	p = (void (*)())instr;
+	p = (void (*)())pack;
 	
 	p();
-		
+	
+	printf("All done!\n");
+
 	return 0;
 }

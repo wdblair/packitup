@@ -23,4 +23,4 @@ payload: hello-payload.o pack.o
 .phony: clean
 
 clean: 
-	rm *.o payload
+	rm *.o payload *.text
