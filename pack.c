@@ -17,11 +17,6 @@
 #include <openssl/err.h>
 
 extern
-char payload_start;
-extern
-char payload_end;
-
-extern
 char useless_start;
 extern
 char useless_end;
@@ -47,9 +42,10 @@ void show_hex (const char *buf, int len) {
 int main (int argc, char *argv[]) {
 
 	unsigned char key[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-         unsigned char iv[] = {1,2,3,4,5,6,7,8};
-         
-         EVP_CIPHER_CTX ctx;
+        unsigned char iv[] = {1,2,3,4,5,6,7,8};
+        
+ 
+        EVP_CIPHER_CTX ctx;
 
          /* Don't set key or IV right away; we want to check lengths */
          EVP_CIPHER_CTX_init(&ctx);
@@ -59,7 +55,6 @@ int main (int argc, char *argv[]) {
 	printf("Finished loading cipher\n");
 	
 	printf("Target section is at: %016x\n", &useless_start);
-	printf("Payload is at: %016x\n", &payload_start);
 	
 	/* Allow enough space in output buffer for additional block "EVP_MAX_BLOCK_LENGTH"*/
 	
@@ -87,7 +82,7 @@ int main (int argc, char *argv[]) {
 	
 	const long pageoffset = ((unsigned long)instr) % pagesize;
 		
-	void *pack = &payload_start;
+	void *pack = &useless_start;
 
 	
 	if (!instr) {
@@ -125,7 +120,7 @@ int main (int argc, char *argv[]) {
 	printf("Decrypted buffer:\n");
 	show_hex ((const char *)instr, outlen);
 	printf("\n");
-	
+		
 	if(mprotect (instr, outlen, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
 		fprintf(stderr, "mprotect failed!\n");
 		return 1;

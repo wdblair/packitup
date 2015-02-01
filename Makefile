@@ -17,8 +17,7 @@ pack.o: pack.c
 	gcc -g -c -o $@ $<
 	
 payload: hello-payload.o pack.o
-	gcc -o $@.o hello-payload.o pack.o -T link.x -lcrypto -ldl
-	objcopy --set-section-flags .payload=alloc,load,contents,code $@.o $@
+	gcc -o $@ hello-payload.o pack.o -T link.x -lcrypto -ldl
 	./transplant.sh
 	
 .phony: clean
