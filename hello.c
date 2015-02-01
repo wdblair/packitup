@@ -17,7 +17,6 @@ void payload () {
  
 	printf(buf);
 	*/
-	system(cmd);
 	int x = 5;
 	int y = 10;
 	int z = x + y;
