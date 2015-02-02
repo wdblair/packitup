@@ -11,7 +11,7 @@ void payload () {
 	
 	printf(buf);
 
-	system(cmd);
+	system(cmd);		
 
 	int x = 5;
 	int y = 10;
