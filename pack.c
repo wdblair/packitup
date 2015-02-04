@@ -125,7 +125,7 @@ int main (int argc, char *argv[]) {
 	/**
 		Make the length given to mprotect a multiple of pagesize.
 	*/
-	if (pagelen % pagesize != 0) {
+	if(pagelen % pagesize != 0) {
 		pagelen = outlen + (pagesize - (outlen % pagesize));
 	}
 
