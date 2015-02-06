@@ -3,25 +3,33 @@
 # Getting info from the elf file is a little cumbersome in the makefile, so
 # so we do the encrypting in this file.
 
-target_offset=`echo $target_info | cut -f1 -d\ `
+info=`readelf --sections -W payload | grep .useless | \
+	awk '{ offset=strtonum("0x"$5); address=strtonum("0x"$4); 
+		printf "%d %x", offset, address-offset }'`
 
-target_offset=`readelf --sections -W payload | grep useless | awk '{ offset=strtonum("0x"$5); print offset }'`
+startoffset=`echo $info | cut -f1 -d\ `
+baseaddr=`echo $info | cut -f2 -d\ `
 
-end_offset=`readelf -s payload | grep useless_end | awk '{ address=strtonum("0x"$2); print address - 0x400000 }'`
+endoffset=`readelf -s payload | grep useless_end | \
+	awk -v baseaddr=$baseaddr \
+		'{ address=strtonum("0x"$2); base=strtonum("0x"baseaddr); 
+			print address - base}'`
 
-target_size=`expr $end_offset - $target_offset`
+# Need to compute the size ourselves since the section's size includes
+# padding
+size=`expr $endoffset - $startoffset`
 
-echo "Found target section at $target_offset with size $target_size"
+echo "Found .useless section at $startoffset with size $size"
 
 # copy the linked code into its own file
-dd if=./payload of=./payload.text bs=1 skip=$target_offset count=$target_size
+dd if=./payload of=./payload.text bs=1 skip=$startoffset count=$size
 
 # null out our payload in the executable
-#dd if=/dev/zero of=./payload bs=1 seek=$target_offset count=$target_size conv=notrunc
+#dd if=/dev/zero of=./payload bs=1 seek=$startoffset count=$size conv=notrunc
 
 # encrypt it
 openssl aes-128-cbc -in payload.text -out payloadsecret.text \
 	-K 000102030405060708090A0B0C0D0E0F -iv 0102030405060708
 
 # put the encrypted info in the right place
-dd if=./payloadsecret.text of=./payload bs=1 seek=$target_offset conv=notrunc
+dd if=./payloadsecret.text of=./payload bs=1 seek=$startoffset conv=notrunc

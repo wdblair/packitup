@@ -16,8 +16,13 @@ pack.o: pack.c
 payload: hello-payload.o pack.o
 	gcc -o $@ hello-payload.o pack.o -T link.x -lcrypto -ldl -static
 	./transplant.sh
+
+
 	
-.phony: clean
+.phony: clean showpayload
+
+showpayload: payload
+	objdump -d -j.useless $<	
 
 clean: 
 	rm *.o payload *.text
