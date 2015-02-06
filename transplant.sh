@@ -24,9 +24,6 @@ echo "Found .useless section at $startoffset with size $size"
 # copy the linked code into its own file
 dd if=./payload of=./payload.text bs=1 skip=$startoffset count=$size
 
-# null out our payload in the executable
-#dd if=/dev/zero of=./payload bs=1 seek=$startoffset count=$size conv=notrunc
-
 # encrypt it
 openssl aes-128-cbc -in payload.text -out payloadsecret.text \
 	-K 000102030405060708090A0B0C0D0E0F -iv 0102030405060708
