@@ -25,8 +25,9 @@ echo "Found .useless section at $startoffset with size $size"
 dd if=./payload of=./payload.text bs=1 skip=$startoffset count=$size
 
 # encrypt it
-openssl aes-128-cbc -in payload.text -out payloadsecret.text \
-	-K 000102030405060708090A0B0C0D0E0F -iv 0102030405060708
+openssl aes-128-cbc -in payload.text -out payloadsecret.text -p \
+	-K 000102030405060708090A0B0C0D0E0F \
+	-iv 0102030405060708090A0B0C0D0E0F10
 
 # put the encrypted info in the right place
 dd if=./payloadsecret.text of=./payload bs=1 seek=$startoffset conv=notrunc

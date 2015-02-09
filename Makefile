@@ -12,9 +12,9 @@ hello-payload.o: hello.o
 
 pack.o: pack.c
 	gcc -g -c -o $@ $<
-	
+
 payload: hello-payload.o pack.o
-	gcc -o $@ hello-payload.o pack.o -T link.x -lcrypto -ldl -static
+	gcc -o payload hello-payload.o pack.o -T link.x -lcrypto -ldl -lz -static
 	./transplant.sh
 
 

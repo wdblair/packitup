@@ -37,9 +37,17 @@ void show_hex (const char *buf, int len) {
 
 int main (int argc, char *argv[]) {
 
-	unsigned char key[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-        unsigned char iv[] = {1,2,3,4,5,6,7,8};
+        unsigned char key[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+        unsigned char iv[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+       	
+	void *up = (void*)&useless_start;
+	void *upend = (void*)&useless_end;
         
+	int verbose = 0;
+
+	if (argc > 1 && strcmp(argv[1], "-v") == 0) {
+		verbose = 1;	
+	}	 
  
         EVP_CIPHER_CTX ctx;
 
@@ -53,7 +61,7 @@ int main (int argc, char *argv[]) {
 	
 	/* Allow enough space in output buffer for additional block "EVP_MAX_BLOCK_LENGTH"*/
 	
-	int inlen = (((unsigned long)(&useless_end)) - ((unsigned long)(&useless_start)));
+	int inlen = (((unsigned long)(upend)) - ((unsigned long)(up)));
 	
 	inlen += 16 - (inlen % 16); /** account for padding */
 	
@@ -69,25 +77,24 @@ int main (int argc, char *argv[]) {
 	const long pagesize = sysconf(_SC_PAGESIZE);
 	
 	void *instr = memalign(pagesize, inlen + EVP_MAX_BLOCK_LENGTH);
-	
-	
-		
-	void *pack = &useless_start;
 
-	
 	if (!instr) {
 		fprintf (stderr, "Malloc failed!\n");
 		exit (1);
 	}
+		
+	void *pack = up;
 	
-	printf("Encrypted buffer:\n");
-	show_hex ((const char *)pack, inlen);
-	printf("\n");
+	if (verbose) {		
+		printf("Encrypted buffer:\n");
+		show_hex ((const char *)pack, inlen);
+		printf("\n");
+	}
 	
 	/**
 		Decrypt the payload
 	*/
-	if(!EVP_DecryptUpdate(&ctx, instr, &outlen, (unsigned char *)pack, inlen)) {
+	if(!EVP_DecryptUpdate(&ctx, instr, &outlen, (const unsigned char *)pack, inlen)) {
 		/* Error */
 		EVP_CIPHER_CTX_cleanup(&ctx);
 		fprintf(stderr, "Error decrypting!");
@@ -108,11 +115,12 @@ int main (int argc, char *argv[]) {
 	printf ("Our decrypted payload has %d bytes\n", outlen);
 	
 	/**
-		Printing instructions from memory gives some weird results.	
-	printf("Decrypted buffer:\n");
-	show_hex ((const char *)instr, outlen);
-	printf("\n");
-	*/
+		Printing instructions from memory gives some weird results.
+	if (verbose) {	
+		printf("Decrypted buffer:\n");
+		show_hex ((const char *)instr, outlen);
+		printf("\n");
+	}*/
 	
 	/**
 		Find the page that the .useless section lies on.
