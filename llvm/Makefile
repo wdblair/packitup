@@ -1,7 +1,7 @@
 all:: boot
 
-boot: boot.cpp runtime.bc
-	clang++ -g -std=c++11 -o $@ $< \
+boot: boot.cpp runtime.o payload.o
+	clang++ -g -std=c++11 -o $@ $^ \
 	`llvm-config --cppflags --ldflags --libs core mcjit native irreader --system-libs` \
 	-Wl,--export-dynamic -lpthread -lcrypt -lpcre -lcrypto -lcrypto -lz -lutil
 
@@ -15,10 +15,13 @@ runtime.bc: runtime.cpp payload.bc
 	clang++ -flto -c -std=c++11 -o $@ $< -fno-use-cxa-atexit \
 	`llvm-config --cppflags`
 
+%.o: %.bc
+	objcopy -I binary -O elf64-x86-64 -B i386 $< $@
+
 payload.bc: payload.c
 	clang -o $@ -flto -c $^
 
 .phony: clean
 
 clean:
-	rm -f boot payload.bc runtime.bc
+	rm -f *.o boot payload.bc runtime.bc
