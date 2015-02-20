@@ -24,16 +24,6 @@ the payload could be compiled to MIPS, and then a MIPS emulator in the packed bi
 emulate the payload.
 
 In order to run this code, you will need to have openssl available as a static library. 
-What's more, running this test can be a little finicky. If you already have openssl 
-installed through a package manager and it does not have a static library available, you
-will need to compile the static libs yourself. Unfortunately, I found you also need to 
-compile the shared libs as well, because we use the openssl shell command to encrypt 
-instructions (which uses the shared libs). For whatever reason, we found encrypting 
-and decrypting yields the slightest differences in decrypting when mixing a static and 
-dynamic version of openssl of slightly different versions.
-
-I am more inclined to believe that this is a result of pack.c being wrought
-with undefined behavior.
 
 Any code here is made purely in an academic way for a class on software
 security. It is developed in the pursuit of academic curiosity and is _not_ 

@@ -26,7 +26,8 @@ int main (int argc, const char *argv[]) {
   LLVMContext context;
   
   SMDiagnostic error;
-  Module *m = ParseIRFile("nginx.bc", error, context);
+  Module *m = ParseIRFile("dropbear.bc", error, context);
+
   ExecutionEngine *TheExecutionEngine;
   
   // Create the JIT.  This takes ownership of the module.

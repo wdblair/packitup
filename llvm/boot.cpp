@@ -21,13 +21,16 @@ int main(int argc, const char *argv[])
   LLVMContext context;
   
   SMDiagnostic error;
-  Module *m = ParseIRFile("load.bc", error, context);
+  Module *m = ParseIRFile("runtime.bc", error, context);
+
   /** 
-     Uncomment to see IR assembly code
+     Uncomment to see human readable IR
   */
   if(m)
   {
     // m->dump();
+  } else {
+    cerr << "Module could not be found!" << endl;
   }
 
   // Create the JIT.  This takes ownership of the module.

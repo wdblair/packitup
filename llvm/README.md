@@ -29,7 +29,8 @@ while being compiled on the fly inside the llvm JIT.
 
 I have included the nginx.bc file since I haven't written down
 the instructions to produce it yet from nginx source code. You 
-just have to change which .bc file is loaded in vm.cpp (and have nginx installed since it reads from logs and config files, etc).
+just have to change which .bc file is loaded in vm.cpp (and 
+have nginx installed since it reads from logs and config files, etc).
 
 compiling nginx
 ===============
@@ -77,3 +78,17 @@ reason we can do this is because when we build the executable (vm.cpp)
 we tell the system linker to export all dynamic symbols.
 This causes the statically linked LLVM functions to be available
 for the JIT to use.
+
+case study: running an ssh server
+=================================
+
+Unfortunately, building openssh using clang's link time optimization does
+not entirely work. Given that the linker claimed there were syntax 
+errors in the bitcode files produced for openssh, we figured it would be 
+easier to try a simpler ssh tool.
+
+The Dropbear ssh server is a perfect replacement given that it is 
+relatively small and provides both an ssh server and client. The use 
+case here is that the attacker can compile an ssh daemon to bitcode, 
+wrap it up with our package, and then deploy it to their target 
+environment.
