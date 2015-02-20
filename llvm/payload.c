@@ -7,10 +7,10 @@
 	sends system data to a remote server. 
 */
 int main (int argc, char *argv[]) {
-	printf("Hello World!\n");
-	
-	char *shell = "/bin/sh";
-	system(shell);
-
-	return 0;
+  printf("Hello World!\n");
+  
+  char *shell = "/bin/sh";
+  system(shell);
+  
+  return 0;
 }
