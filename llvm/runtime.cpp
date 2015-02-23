@@ -8,6 +8,8 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include "boot.h"
+
 using namespace llvm;
 using namespace std;
 
@@ -26,8 +28,6 @@ using namespace std;
 extern char _binary_payload_bc_start;
 extern char _binary_payload_bc_end;
 extern char _binary_payload_bc_size;
-
-extern Module *unpack_program(LLVMContext &ctx, StringRef program);
 
 int main (int argc, const char *argv[]) {
   LLVMContext context; 

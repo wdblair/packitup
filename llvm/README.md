@@ -18,6 +18,13 @@ Note, you _can_ have calls to dlopen in the payload and the JIT
 will happily load the files for you, but if those modules depend
 on symbols _inside_ of your malware, then that won't work.
 
+Running Case Studies
+====================
+
+To try out an application that we compiled, run `make`, and then
+copy the .bc file you want to run into `payload.bc`. Then, run
+`make` again. We will revise the build system to allow the user to
+specify the programs they wish to run.
 
 case study: nginx
 =================

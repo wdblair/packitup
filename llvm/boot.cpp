@@ -8,6 +8,8 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include "boot.h"
+
 using namespace llvm;
 using namespace std;
 
@@ -21,7 +23,7 @@ extern char _binary_runtime_bc_size;
     Unpack a program referred to by data.
     The decrypting stub code will go here.
 */
-Module *unpack_program (LLVMContext &context, StringRef data) {
+Module *unpack_program(LLVMContext &context, StringRef data) {
     SMDiagnostic error;
 
     auto program = 
