@@ -27,17 +27,16 @@ extern char _binary_payload_bc_start;
 extern char _binary_payload_bc_end;
 extern char _binary_payload_bc_size;
 
+extern Module *unpack_program(LLVMContext &ctx, StringRef program);
+
 int main (int argc, const char *argv[]) {
-  LLVMContext context;
- 
+  LLVMContext context; 
   SMDiagnostic error;
 
   StringRef runtime_data(&_binary_payload_bc_start,
                          (size_t)&_binary_payload_bc_size);
-  auto runtime =
-        MemoryBuffer::getMemBuffer(runtime_data, "", false);
 
-  Module *m = ParseIR(runtime, error, context);
+  Module *m = unpack_program(context, runtime_data);
 
   ExecutionEngine *TheExecutionEngine;
 
@@ -56,7 +55,9 @@ int main (int argc, const char *argv[]) {
   // JIT the function, returning a function pointer.
   void *FPtr = TheExecutionEngine->getPointerToFunction(f);
 
-  int (*FP)(int argc, const char*[]) = (int (*)(int argc, const char*[]))FPtr;
+  typedef int(*mainfunc)(int argc, const char*[]);
+
+  mainfunc FP = (mainfunc)FPtr;
   
   FP(argc, argv);
 
