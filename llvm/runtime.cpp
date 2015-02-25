@@ -21,7 +21,7 @@ using namespace std;
 
    We would like this code to remain free from inspection, so since
    we compile it to bitcode, we can encrypt it and distribute it
-   with vm.cpp, which will simply decrypt it and pass it to the
+   with boot.cpp, which will simply decrypt it and pass it to the
    JIT.
 */
 

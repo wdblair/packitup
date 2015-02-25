@@ -6,8 +6,11 @@ of=$2
 salt="Uj_y6L*-mhc@77d"
 password=`python stub.py`
 
-hash=`python stub.py`
+hash=`python key.py`
 
+# python gives us a 32 byte value
+# first 16 bytes - key
+# second 16 bytes - iv
 key=`echo $hash | cut -c -32`
 iv=`echo $hash | cut -c 33-`
 
