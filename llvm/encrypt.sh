@@ -6,7 +6,7 @@ of=$2
 salt="Uj_y6L*-mhc@77d"
 password=`python stub.py`
 
-hash=`./genkey $salt $password`
+hash=`python stub.py`
 
 key=`echo $hash | cut -c -32`
 iv=`echo $hash | cut -c 33-`

@@ -15,17 +15,14 @@ runtime.bc: runtime.cpp payload.bc
 	clang++ -flto -c -std=c++11 -o $@ $< -fno-use-cxa-atexit \
 	`llvm-config --cppflags`
 
-%.o: %.bc genkey
+%.o: %.bc
 	./encrypt.sh $< $<.enc
 	objcopy -I binary -O elf64-x86-64 -B i386 $<.enc $@
 
 payload.bc: payload.c
 	clang -o $@ -flto -c $^
 
-genkey: genkey.c
-	clang -o $@ $^ -lcrypto
-
 .phony: clean
 
 clean:
-	rm -f *.o boot genkey payload.bc runtime.bc
+	rm -f *.o *.enc boot genkey payload.bc runtime.bc
