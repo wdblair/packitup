@@ -25,18 +25,17 @@ using namespace std;
    JIT.
 */
 
-extern char _binary_payload_bc_start;
-extern char _binary_payload_bc_end;
-extern char _binary_payload_bc_size;
+extern char _binary_payload_bc_enc_start;
+extern char _binary_payload_bc_enc_end;
+extern char _binary_payload_bc_enc_size;
 
 int main (int argc, const char *argv[]) {
   LLVMContext context; 
   SMDiagnostic error;
 
-  StringRef runtime_data(&_binary_payload_bc_start,
-                         (size_t)&_binary_payload_bc_size);
-
-  Module *m = unpack_program(context, runtime_data);
+  Module *m = unpack_program(context, 
+                             (const char *)&_binary_payload_bc_enc_start, 
+                             (size_t)&_binary_payload_bc_enc_size);
 
   ExecutionEngine *TheExecutionEngine;
 
