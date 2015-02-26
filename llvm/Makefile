@@ -1,9 +1,12 @@
 all:: boot
 
+# Assume for the demo we are using nginx.
+# dropbear (ssh) requires libutil, which we could compile to bitcode possibly
+
 boot: boot.cpp key.cpp runtime.o payload.o
 	clang++ -g -std=c++11 -o $@ $^ \
 	`llvm-config --cppflags --ldflags --libs core mcjit native irreader --system-libs` \
-	-Wl,--export-dynamic -lpthread -lcrypt -lpcre -lcrypto -lz -lutil
+	-Wl,--export-dynamic -lpthread -lcrypt -lcrypto -lz
 
 # I don't think using bitcode produced by arbitrary C++ is entirely feasible yet.
 # Using iostream requires some symbol that the execution can't find,

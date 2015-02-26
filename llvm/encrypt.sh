@@ -4,7 +4,6 @@ if=$1
 of=$2
 
 salt="Uj_y6L*-mhc@77d"
-password=`python stub.py`
 
 hash=`python key.py`
 
