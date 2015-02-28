@@ -40,7 +40,7 @@ int main (int argc, const char *argv[]) {
   ExecutionEngine *TheExecutionEngine;
 
   // Create the JIT.  This takes ownership of the module.
-  TheExecutionEngine = EngineBuilder(m).setUseMCJIT(true).create();
+  TheExecutionEngine = EngineBuilder(std::unique_ptr<Module>(m)).create();
   
   Function *f = m->getFunction("main");
   
