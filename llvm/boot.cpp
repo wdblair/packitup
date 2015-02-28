@@ -89,9 +89,9 @@ Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
     if(!EVP_DecryptUpdate(&cipherctx, bitcode, &outsize, (unsigned const char*)start, size)) {
         /* Error */
         ERR_print_errors_fp(stderr);
-	EVP_CIPHER_CTX_cleanup(&cipherctx);
-	fprintf(stderr, "Error decrypting!");
-	exit(1);
+  EVP_CIPHER_CTX_cleanup(&cipherctx);
+  fprintf(stderr, "Error decrypting!");
+  exit(1);
     }
 
     int tmp;
@@ -99,7 +99,7 @@ Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
     if(!EVP_DecryptFinal_ex(&cipherctx, bitcode+outsize, &tmp)) {
         /* Error */
         ERR_print_errors_fp(stderr);
-	EVP_CIPHER_CTX_cleanup(&cipherctx);
+  EVP_CIPHER_CTX_cleanup(&cipherctx);
         exit(1);
     }
  
@@ -112,7 +112,7 @@ Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
 
     auto program = MemoryBuffer::getMemBuffer(bitcoderef, "", false);
  
-    Module *m = ParseIR(program, error, context);
+    Module *m = parseIR(program->getMemBufferRef(), error, context).release();
 
     if (!m) {
         cerr << "Module could not be found!" << endl;
@@ -132,11 +132,11 @@ int main(int argc, const char *argv[])
   SMDiagnostic error;
 
   Module *m = unpack_program(context, 
-	(const char*)&_binary_runtime_bc_enc_start, 
-	(size_t)&_binary_runtime_bc_enc_size);
+  (const char*)&_binary_runtime_bc_enc_start, 
+  (size_t)&_binary_runtime_bc_enc_size);
 
   // Create the JIT.  This takes ownership of the module.
-  TheExecutionEngine = EngineBuilder(m).setUseMCJIT(true).create();
+  TheExecutionEngine = EngineBuilder(std::unique_ptr<Module>(m)).create();
 
   Function *f = m->getFunction("main");
 
