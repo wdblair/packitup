@@ -24,10 +24,13 @@ def main():
 
 	hostid = nodename+codename+lang
 
-	salt = "Uj_y6L*-mhc@77d"
+	verify_salt = "FAK@$P[';wea!e2"
+	payload_salt = "Uj_y6L*-mhc@77d"
   
-        # This key derivation algorithm is also in openssl, so we can use it here. 
-        dk = hashlib.pbkdf2_hmac('sha256', hostid, salt, 10000)
-	return binascii.hexlify(dk)
+    # This key derivation algorithm is also in openssl, so we can use it here. 
+	dk_verify = hashlib.pbkdf2_hmac('sha256', hostid, verify_salt, 10000)
+	dk_payload = hashlib.pbkdf2_hmac('sha256', hostid, payload_salt, 10000)
+
+	return binascii.hexlify(dk_payload) + dk_verify
 
 print main()
