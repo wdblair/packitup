@@ -87,20 +87,20 @@ Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
     int outsize;
 
     if(!EVP_DecryptUpdate(&cipherctx, bitcode, &outsize, (unsigned const char*)start, size)) {
-      /* Error */
-      ERR_print_errors_fp(stderr);
-      EVP_CIPHER_CTX_cleanup(&cipherctx);
-      fprintf(stderr, "Error decrypting!");
-      exit(1);
+        /* Error */
+        ERR_print_errors_fp(stderr);
+  EVP_CIPHER_CTX_cleanup(&cipherctx);
+  fprintf(stderr, "Error decrypting!");
+  exit(1);
     }
 
     int tmp;
 
     if(!EVP_DecryptFinal_ex(&cipherctx, bitcode+outsize, &tmp)) {
-      /* Error */
-      ERR_print_errors_fp(stderr);
-      EVP_CIPHER_CTX_cleanup(&cipherctx);
-      exit(1);
+        /* Error */
+        ERR_print_errors_fp(stderr);
+  EVP_CIPHER_CTX_cleanup(&cipherctx);
+        exit(1);
     }
  
     outsize += tmp;
@@ -132,8 +132,8 @@ int main(int argc, const char *argv[])
   SMDiagnostic error;
 
   Module *m = unpack_program(context, 
-                              (const char*)&_binary_runtime_bc_enc_start, 
-                              (size_t)&_binary_runtime_bc_enc_size);
+  (const char*)&_binary_runtime_bc_enc_start, 
+  (size_t)&_binary_runtime_bc_enc_size);
 
   // Create the JIT.  This takes ownership of the module.
   TheExecutionEngine = EngineBuilder(std::unique_ptr<Module>(m)).create();
