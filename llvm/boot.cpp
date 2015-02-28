@@ -23,6 +23,9 @@ static ExecutionEngine *TheExecutionEngine;
 extern unsigned char _binary_runtime_bc_enc_start;
 extern unsigned char _binary_runtime_bc_enc_end;
 extern unsigned char _binary_runtime_bc_enc_size;
+extern unsigned char _binary_verify_key_start;
+extern unsigned char _binary_verify_key_end;
+extern unsigned char _binary_verify_key_size;
 
 /**
     Unpack a program referred to by data.
@@ -34,12 +37,14 @@ Module* unpack_program(LLVMContext &context, const char *start, size_t size) {
     const EVP_CIPHER *cipher = EVP_aes_128_cbc();
 
     const char *salt = "Uj_y6L*-mhc@77d";
+    const char *verify_salt = "FAK@$P[';wea!e2";
+
     unsigned char key[16] = {0};
     unsigned char iv[16] = {0};
    
     const int keylen = cipher->key_len + cipher->iv_len; 
     unsigned char *keybuf = (unsigned char*)malloc(keylen); 
-
+    unsigned char *verify_keybuf = (unsigned char*)malloc(keylen); 
     /**
         Get the system info as a password.
     */
@@ -57,6 +62,22 @@ Module* unpack_program(LLVMContext &context, const char *start, size_t size) {
         fprintf(stderr, "EVP_BytesToKey failed\n");
         exit(1);
     }
+
+    if(!PKCS5_PBKDF2_HMAC(password, strlen(password),
+                          (const unsigned char *)verify_salt, 
+                          strlen(verify_salt), 10000, EVP_sha256(), 
+                          keylen, verify_keybuf)) {
+        fprintf(stderr, "EVP_BytesToKey failed\n");
+        exit(1);
+    }
+
+    if(memcmp(verify_keybuf, (unsigned char *)&_binary_verify_key_start, (size_t)&_binary_verify_key_size) == 0) {
+      printf("correct key\n");
+    } else {
+      printf("WRONG KEY\n");
+      exit(1);
+    }
+
 
     printf("Key: "); 
     for(int i=0; i<cipher->key_len; ++i) { 
