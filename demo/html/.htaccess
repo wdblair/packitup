@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /
+
+RewriteRule track.gif track.php [L,QSA,NC]
+
+AuthUserFile /var/www/html/.htpasswd
+AuthName "access log"
+AuthType Basic
+
+<Files ~ "\.txt$">
+	Require valid-user
+</Files>
