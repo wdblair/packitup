@@ -5,6 +5,7 @@
 # Basic code refactoring by Andrew Scheller
 
 from time import sleep
+from collections import OrderedDict
 import subprocess
 import hashlib
 import binascii
@@ -31,28 +32,32 @@ dk_payload = ""
 hostid = ""
 verify_salt = "Uj_y6L*-mhc@77d"
 payload_salt = "FnF4Imd5cQ_z!bF"
-system_info = dict({
+system_info = OrderedDict({
 	"node name":"uname -n",
-	"code name":"lsb_release -cs",
-	"language":"echo $LANG",
+	"Language":"echo $LANG",
+	"Code name":"lsb_release -cs",
 	"OS":"uname -o",
 	"Public IP":"dig myip.opendns.com @resolver1.opendns.com +short", 
 	"Firefox Version":"firefox -v"
 })
 
+system_keys = ["Code name", "Language", "OS", "Public IP", "Firefox Version"]
+cpp_keys = ["codeNameCmd", "langCmd", "osCmd", "extIpCmd", "firefoxVerCmd"]
+hostid_components = ""
+
 menu_data = {
-  'title': "HIE Generator", 'type': MENU, 'subtitle': "Your latest generated key can be found in key.txt. Please select the system info you want to enter...",
+  'title': "HIE Generator", 'type': MENU, 'subtitle': "Please select the system info you want to enter...",
   'options':[
-        { 'title': "Code name", 'type': MENU, 'subtitle': 'Please select an option...',
+        { 'title': system_keys[0], 'type': MENU, 'subtitle': 'Please select an option...',
 	'options': [
           { 'title': "Lucid", 'type': COMMAND, 'command': system_info.get('language') },			
 	  { 'title': "Precise", 'type': COMMAND, 'command': system_info.get('language') },
           { 'title': "Trusty", 'type': COMMAND, 'command': system_info.get('language') },			
           { 'title': "Utopic", 'type': COMMAND, 'command': system_info.get('language') },			
-          { 'title': "Custom value", 'type': COMMAND, 'command': "echo enter your own!" },			
+          { 'title': "Custom value", 'type': COMMAND, 'command': ''}, 
 	]
 	},	
-        { 'title': "Language", 'type': MENU, 'subtitle': "Please select an option...",
+        { 'title': system_keys[1], 'type': MENU, 'subtitle': "Please select an option...",
 	'options': [
           { 'title': "en_US.utf8", 'type': COMMAND, 'command': system_info.get('language') },			
 	  { 'title': "ru_RU.utf8", 'type': COMMAND, 'command': system_info.get('language') },
@@ -61,7 +66,7 @@ menu_data = {
           { 'title': "Custom value", 'type': COMMAND, 'command': "echo enter your own!" },			
 	]	
 	},
-        { 'title': "OS", 'type': MENU, 'subtitle': "Please select an option...",
+        { 'title': system_keys[2], 'type': MENU, 'subtitle': "Please select an option...",
         'options': [
           { 'title': "Mac", 'type': COMMAND, 'command': 'uname -o' },
           { 'title': "Linux", 'type': COMMAND, 'command': 'uname -o' },
@@ -69,8 +74,8 @@ menu_data = {
           { 'title': "Custom value", 'type': COMMAND, 'command': 'uname -o' },
         ]
         },
-        { 'title': "External IP", 'type': COMMAND, 'command': 'dig myip.opendns.com @resolver1.opendns.com +short' },
-	{ 'title': "Firefox Version", 'type': COMMAND, 'command': 'firefox -v' },
+        { 'title': system_keys[3], 'type': COMMAND, 'command': 'dig myip.opendns.com @resolver1.opendns.com +short' },
+	{ 'title': system_keys[4], 'type': COMMAND, 'command': 'firefox -v' },
 	{ 'title': "Generate Key", 'type': COMMAND, 'command': 'lala' },
 	{ 'title': "Generate New Salts", 'type': MENU, 'subtitle': "Please select an option...",
         'options': [
@@ -139,6 +144,7 @@ def runmenu(menu, parent):
 # This function calls showmenu and then acts on the selected item
 def processmenu(menu, parent=None):
   global hostid
+  global hostid_components
   optioncount = len(menu['options'])
   exitmenu = False
   while not exitmenu: #Loop until the user exits the menu
@@ -150,18 +156,19 @@ def processmenu(menu, parent=None):
       if menu['options'][getin]['title'] == 'Generate Key':
 	generate_key()
 	output_to_file()
-      elif menu['options'][getin]['title'] == 'External IP':
-		info = get_param(menu['options'][getin]['title'], screen)  
-		if info != "q":
-			hostid = hostid + info	
-      elif menu['options'][getin]['title'] == 'Firefox Version':
-		info = get_param(menu['options'][getin]['title'], screen)  
-		if info != "q":
-			hostid = hostid + info	
+      elif menu['options'][getin]['title'] == system_keys[3]:
+		#public IP
+		add_to_hostid(get_param(menu['options'][getin]['title'], screen), menu['options'][getin]['title'])
+      elif menu['options'][getin]['title'] == system_keys[4]:
+		#firefox version
+		add_to_hostid(get_param(menu['options'][getin]['title'], screen), menu['options'][getin]['title'])
+				
       elif menu['options'][getin]['title'] == 'Start Over':
 		#wipe hostid contents and start again...
 		hostid=""
+		hostid_components=""
       else:
+	#in submenus
       	if menu['options'][getin]['title'] == 'Generate verification salt':
 		global verify_salt
 		verify_salt = get_new_salt()
@@ -173,11 +180,15 @@ def processmenu(menu, parent=None):
 	elif menu['options'][getin]['title'] != 'Custom value':
 		hostid = hostid + menu['options'][getin]['title'] 
 		exitmenu = True
+		#hostid_components = hostid_components + menu['title'] + ";"
+		hostid_components = hostid_components + cpp_keys[system_keys.index(menu['title'])] + ";"
 	else:    
 		info = get_param(menu['options'][getin]['title'], screen)  
 		if info != "q":
 			hostid = hostid + info			
 			exitmenu = True		
+			#hostid_components = hostid_components + menu['title'] + ";"
+			hostid_components = hostid_components + cpp_keys[system_keys.index(menu['title'])] + ";"
       screen.clear() #clears previous screen on key press and updates display based on pos
       curses.reset_prog_mode()   # reset to 'current' curses environment
       curses.curs_set(1)         # reset doesn't do this right
@@ -188,19 +199,22 @@ def processmenu(menu, parent=None):
 	screen.addstr(16,2, "decryption salt = " + payload_salt)
       elif menu['options'][getin]['title'] == 'Generate Key':
 	#show some extra stuff
-	screen.addstr(20,2, "hostid = " + hostid) #current hostid status
-	screen.addstr(21,2, "verification salt = " + verify_salt) 
-	screen.addstr(22,2, "decryption salt = " + payload_salt) 
-	screen.addstr(24,2, "verification key = " + dk_verify) 
-	screen.addstr(25,2, "decryption key = " + dk_payload) 
+	screen.addstr(15,2, "hostid = " + hostid) #current hostid status
+	screen.addstr(16,2, "verification salt = " + verify_salt) 
+	screen.addstr(17,2, "decryption salt = " + payload_salt) 
+	screen.addstr(18,2, "verification key = " + dk_verify) 
+	screen.addstr(19,2, "decryption key = " + dk_payload) 
+	screen.addstr(20,2, "This info has been written to key.txt.")   
       else:
-	screen.addstr(20,2, "hostid = " + hostid) #current hostid status
+	screen.addstr(15,2, "hostid = " + hostid) #current hostid status
+	screen.addstr(16,2, "hostid_components = " + hostid_components) #current hostid status
 
     elif menu['options'][getin]['type'] == MENU:
           screen.clear() #clears previous screen on key press and updates display based on pos
           processmenu(menu['options'][getin], menu) # display the submenu
           screen.clear() #clears previous screen on key press and updates display based on pos
-	  screen.addstr(20,2, "hostid = " + hostid) #current hostid status
+	  screen.addstr(15,2, "hostid = " + hostid) #current hostid status
+	  screen.addstr(16,2, "hostid_components = " + hostid_components) #current hostid status
     elif menu['options'][getin]['type'] == EXITMENU:
           exitmenu = True
 
@@ -213,6 +227,30 @@ def get_param(prompt_string, stdscr):
      stdscr.refresh()
      input = stdscr.getstr(4, 2, 60)
      return input
+
+def add_to_hostid_fromsubmenu(info, component_key):
+	global hostid
+	global hostid_components
+	if menu['options'][getin]['title'] != 'Custom value':
+		hostid = hostid + info
+		#hostid_components = hostid_components + component_key + ";"
+		hostid_components = hostid_components + cpp_keys[system_keys.index(component_key)] + ";"
+		exitmenu = True
+	else:    
+		info = get_param(menu['options'][getin]['title'], stdscr)  
+		if info != "q":
+			hostid = hostid + info
+			#hostid_components = hostid_components + component_key + ";"
+			hostid_components = hostid_components + cpp_keys[system_keys.index(component_key)] + ";"
+			exitmenu = True		
+
+def add_to_hostid(info, component_key):
+	global hostid
+	global hostid_components
+	if info != "q":
+		hostid = hostid + info
+		#hostid_components = hostid_components + component_key + ";"
+		hostid_components = hostid_components + cpp_keys[system_keys.index(component_key)] + ";"
 
 def get_new_salt():
 	#generate a new 16 byte salt if you want one 
