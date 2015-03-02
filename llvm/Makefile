@@ -4,7 +4,7 @@ all:: boot
 # dropbear (ssh) requires libutil, which we could compile to bitcode possibly
 
 boot: boot.cpp key.cpp runtime.o payload.o
-	clang++ -g -std=c++11 -o $@ $^ \
+	clang++ -g -std=c++11 -o $@ $^ -Wl,-T link.x \
 	`llvm-config --cppflags --ldflags --libs core mcjit native irreader --system-libs` \
 	-Wl,--export-dynamic -lpthread -lcrypt -lcrypto -lz
 
@@ -21,11 +21,15 @@ runtime.bc: runtime.cpp payload.bc
 %.o: %.bc
 	./encrypt.sh $< $<.enc
 	objcopy -I binary -O elf64-x86-64 -B i386 $<.enc $@
+	objcopy --rename-section .data=.payload $@ $@
 
 payload.bc: payload.c
 	clang -o $@ -flto -c $^
 
+rs: rs.c
+	gcc -I /usr/local/include/libr $^ -o $@ -lr_bin -lr_core -lr_util
+
 .phony: clean
 
 clean:
-	rm -f *.o *.enc boot genkey payload.bc runtime.bc
+	rm -f *.o *.enc boot genkey payload.bc runtime.bc rs
