@@ -9,6 +9,9 @@ from collections import OrderedDict
 import subprocess
 import hashlib
 import binascii
+import fileinput
+import shutil
+import sys
 import curses, os #curses is the interface for capturing key presses on the menu, os launches the files
 from curses.textpad import Textbox, rectangle
 screen = curses.initscr() #initializes a new window for capturing key presses
@@ -26,6 +29,11 @@ MENU = "menu"
 COMMAND = "command"
 EXITMENU = "exitmenu"
 
+keyText_default = "key.txt"
+keyText = ""
+keyFile_default = "key.cpp"
+keyFile = ""
+keyTemplate = "keygen.cpp"
 debug = False
 dk_verify = ""
 dk_payload = ""
@@ -41,49 +49,56 @@ system_info = OrderedDict({
 	"Firefox Version":"firefox -v"
 })
 
-system_keys = ["Code name", "Language", "OS", "Public IP", "Firefox Version"]
-cpp_keys = ["codeNameCmd", "langCmd", "osCmd", "extIpCmd", "firefoxVerCmd"]
+system_keys = ["Code name", "Language", "Linux Distro", "Public IP", "Firefox Version", "Program name"]
+cpp_keys = ["codeNameCmd", "langCmd", "linuxDistroCmd", "extIpCmd", "firefoxVerCmd", "programNameCmd"]
 hostid_components = ""
 
 menu_data = {
-  'title': "HIE Generator", 'type': MENU, 'subtitle': "Please select the system info you want to enter...",
+  'title': "HIE Generator", 'type': MENU, 'subtitle': "Please select an option...",
   'options':[
-        { 'title': system_keys[0], 'type': MENU, 'subtitle': 'Please select an option...',
+	{ 'title': "Generate hostid", 'type': MENU, 'subtitle': 'Please select the system info you want to enter...',
 	'options': [
-          { 'title': "Lucid", 'type': COMMAND, 'command': system_info.get('language') },			
-	  { 'title': "Precise", 'type': COMMAND, 'command': system_info.get('language') },
-          { 'title': "Trusty", 'type': COMMAND, 'command': system_info.get('language') },			
-          { 'title': "Utopic", 'type': COMMAND, 'command': system_info.get('language') },			
-          { 'title': "Custom value", 'type': COMMAND, 'command': ''}, 
+		{ 'title': system_keys[0], 'type': MENU, 'subtitle': 'Please select an option...',
+			'options': [
+		          { 'title': "lucid", 'type': COMMAND, 'command': system_info.get('language') },			
+			  { 'title': "precise", 'type': COMMAND, 'command': system_info.get('language') },
+		          { 'title': "trusty", 'type': COMMAND, 'command': system_info.get('language') },			
+		          { 'title': "utopic", 'type': COMMAND, 'command': system_info.get('language') },			
+		          { 'title': "Custom value", 'type': COMMAND, 'command': ''}, 
+		]
+		},
+		{ 'title': system_keys[1], 'type': MENU, 'subtitle': 'Please select an option...',
+			'options': [
+		          { 'title': "en_US.UTF-8", 'type': COMMAND, 'command': system_info.get('language') },			
+			  { 'title': "ru_RU.UTF-8", 'type': COMMAND, 'command': system_info.get('language') },
+		          { 'title': "fr_FR.UTF-8", 'type': COMMAND, 'command': system_info.get('language') },			
+		          { 'title': "de_DE.UTF-8", 'type': COMMAND, 'command': system_info.get('language') },			
+		          { 'title': "Custom value", 'type': COMMAND, 'command': "echo enter your own!" },			
+		]	
+		},
+		{ 'title': system_keys[2], 'type': MENU, 'subtitle': 'Please select an option...',
+	    	   'options': [
+	        	  { 'title': "Ubuntu", 'type': COMMAND, 'command': '' },
+		          { 'title': "Kali", 'type': COMMAND, 'command': '' },
+		          { 'title': "Debian", 'type': COMMAND, 'command': '' },
+		          { 'title': "Fedora", 'type': COMMAND, 'command': '' },
+		          { 'title': "Custom value", 'type': COMMAND, 'command': 'uname -o' },
+	        ]
+	        },
+	        { 'title': system_keys[3], 'type': COMMAND, 'command': 'dig myip.opendns.com @resolver1.opendns.com +short' },	
+		{ 'title': system_keys[4], 'type': COMMAND, 'command': 'firefox -v' },
+		{ 'title': system_keys[5], 'type': COMMAND, 'command': 'Please select an option...'},
+		{ 'title': "Start Over", 'type': COMMAND, 'command': 'lala' },
 	]
-	},	
-        { 'title': system_keys[1], 'type': MENU, 'subtitle': "Please select an option...",
-	'options': [
-          { 'title': "en_US.utf8", 'type': COMMAND, 'command': system_info.get('language') },			
-	  { 'title': "ru_RU.utf8", 'type': COMMAND, 'command': system_info.get('language') },
-          { 'title': "fr_FR.utf8", 'type': COMMAND, 'command': system_info.get('language') },			
-          { 'title': "de_DE.utf8", 'type': COMMAND, 'command': system_info.get('language') },			
-          { 'title': "Custom value", 'type': COMMAND, 'command': "echo enter your own!" },			
-	]	
 	},
-        { 'title': system_keys[2], 'type': MENU, 'subtitle': "Please select an option...",
-        'options': [
-          { 'title': "Mac", 'type': COMMAND, 'command': 'uname -o' },
-          { 'title': "Linux", 'type': COMMAND, 'command': 'uname -o' },
-          { 'title': "Windows", 'type': COMMAND, 'command': 'uname -o' },
-          { 'title': "Custom value", 'type': COMMAND, 'command': 'uname -o' },
-        ]
-        },
-        { 'title': system_keys[3], 'type': COMMAND, 'command': 'dig myip.opendns.com @resolver1.opendns.com +short' },
-	{ 'title': system_keys[4], 'type': COMMAND, 'command': 'firefox -v' },
-	{ 'title': "Generate Key", 'type': COMMAND, 'command': 'lala' },
+	{ 'title': "Generate Keys", 'type': COMMAND, 'command': 'lala' },
+	{ 'title': "Generate cpp", 'type': COMMAND, 'command': '' },
 	{ 'title': "Generate New Salts", 'type': MENU, 'subtitle': "Please select an option...",
         'options': [
           { 'title': "Generate verification salt", 'type': COMMAND, 'command': 'lala' },
           { 'title': "Generate decryption salt", 'type': COMMAND, 'command': 'lala' },
         ]
 	},
-	{ 'title': "Start Over", 'type': COMMAND, 'command': 'lala' },
   ]
 }
 
@@ -145,6 +160,10 @@ def runmenu(menu, parent):
 def processmenu(menu, parent=None):
   global hostid
   global hostid_components
+  global keyFile
+  global keyText
+  global payload_salt
+  global verify_salt
   optioncount = len(menu['options'])
   exitmenu = False
   while not exitmenu: #Loop until the user exits the menu
@@ -153,16 +172,33 @@ def processmenu(menu, parent=None):
         exitmenu = True
     elif menu['options'][getin]['type'] == COMMAND:
       curses.def_prog_mode()    # save curent curses environment
-      if menu['options'][getin]['title'] == 'Generate Key':
-	generate_key()
-	output_to_file()
-      elif menu['options'][getin]['title'] == system_keys[3]:
+      if menu['options'][getin]['title'] == 'Generate Keys':
+	info = get_param(menu['options'][getin]['title'], "Specify a file name or press [d] to use default name",screen)
+	if info == "d":
+		keyText = keyText_default		
+		generate_key()
+		output_to_file()
+	elif info != "q":
+		keyText = info
+		generate_key()
+		output_to_file()
+      elif menu['options'][getin]['title'] == 'Generate cpp':
+	info = get_param(menu['options'][getin]['title'], "Specify a file name or press [d] to use default name",screen)
+	if info == "d":
+		keyFile = keyFile_default
+		keyText = keyText_default
+		generate_key()
+		output_to_file()
+		create_cpp()
+	elif info != "q":
+		keyFile = info
+		keyText = keyFile + ".txt"
+		generate_key()
+		output_to_file()
+		create_cpp()
+      elif menu['options'][getin]['title'] in (system_keys[3], system_keys[4], system_keys[5]):
 		#public IP
-		add_to_hostid(get_param(menu['options'][getin]['title'], screen), menu['options'][getin]['title'])
-      elif menu['options'][getin]['title'] == system_keys[4]:
-		#firefox version
-		add_to_hostid(get_param(menu['options'][getin]['title'], screen), menu['options'][getin]['title'])
-				
+		add_to_hostid(get_param(menu['options'][getin]['title'], "Please enter custom value...", screen), menu['options'][getin]['title'])
       elif menu['options'][getin]['title'] == 'Start Over':
 		#wipe hostid contents and start again...
 		hostid=""
@@ -170,12 +206,10 @@ def processmenu(menu, parent=None):
       else:
 	#in submenus
       	if menu['options'][getin]['title'] == 'Generate verification salt':
-		global verify_salt
 		verify_salt = get_new_salt()
 		screen.addstr(15,2, "verification salt = " + verify_salt) 
 		screen.addstr(16,2, "decryption salt = " + payload_salt) 
       	elif menu['options'][getin]['title'] == 'Generate decryption salt':
-		global payload_salt
 		payload_salt = get_new_salt() 
 	elif menu['options'][getin]['title'] != 'Custom value':
 		hostid = hostid + menu['options'][getin]['title'] 
@@ -183,7 +217,7 @@ def processmenu(menu, parent=None):
 		#hostid_components = hostid_components + menu['title'] + ";"
 		hostid_components = hostid_components + cpp_keys[system_keys.index(menu['title'])] + ";"
 	else:    
-		info = get_param(menu['options'][getin]['title'], screen)  
+		info = get_param(menu['options'][getin]['title'], "Please enter custom value...", screen)  
 		if info != "q":
 			hostid = hostid + info			
 			exitmenu = True		
@@ -194,20 +228,19 @@ def processmenu(menu, parent=None):
       curses.curs_set(1)         # reset doesn't do this right
       curses.curs_set(0)
 
+      screen.addstr(15,2, "hostid = " + hostid) #current hostid status
+      screen.addstr(16,2, "hostid_components = " + hostid_components) #current hostid status
+
       if menu['options'][getin]['title'] == 'Generate decryption salt' or menu['options'][getin]['title'] == 'Generate verification salt':
 	screen.addstr(15,2, "verification salt = " + verify_salt) 
 	screen.addstr(16,2, "decryption salt = " + payload_salt)
-      elif menu['options'][getin]['title'] == 'Generate Key':
-	#show some extra stuff
-	screen.addstr(15,2, "hostid = " + hostid) #current hostid status
-	screen.addstr(16,2, "verification salt = " + verify_salt) 
-	screen.addstr(17,2, "decryption salt = " + payload_salt) 
-	screen.addstr(18,2, "verification key = " + dk_verify) 
-	screen.addstr(19,2, "decryption key = " + dk_payload) 
-	screen.addstr(20,2, "This info has been written to key.txt.")   
-      else:
-	screen.addstr(15,2, "hostid = " + hostid) #current hostid status
-	screen.addstr(16,2, "hostid_components = " + hostid_components) #current hostid status
+      elif menu['options'][getin]['title'] == 'Generate Keys':
+	if info != "q":
+		screen.addstr(19,2, "Keys have been written to " + keyText)   
+      elif menu['options'][getin]['title'] == 'Generate cpp':
+	if info != "q":
+		screen.addstr(19,2, "Keys have been written to " + keyText)   
+		screen.addstr(20,2, "Cpp has been writeen to " + keyFile)   
 
     elif menu['options'][getin]['type'] == MENU:
           screen.clear() #clears previous screen on key press and updates display based on pos
@@ -218,31 +251,16 @@ def processmenu(menu, parent=None):
     elif menu['options'][getin]['type'] == EXITMENU:
           exitmenu = True
 
-def get_param(prompt_string, stdscr):
+def get_param(prompt_string, subtitle, stdscr):
      stdscr.clear() #clears previous screen
      stdscr.border(0)
      curses.echo()
-     screen.addstr(1,2, "Press [q] to go back") #Subtitle for this menu
-     stdscr.addstr(2, 2, prompt_string)
+     stdscr.addstr(1,2, prompt_string, curses.A_STANDOUT) # Title for this menu
+     stdscr.addstr(3,2, subtitle, curses.A_BOLD) #Subtitle for this menu
+     stdscr.addstr(4,2, "Or press [q] to go back", curses.A_BOLD) #Subtitle for this menu
      stdscr.refresh()
-     input = stdscr.getstr(4, 2, 60)
+     input = stdscr.getstr(6, 2, 60)
      return input
-
-def add_to_hostid_fromsubmenu(info, component_key):
-	global hostid
-	global hostid_components
-	if menu['options'][getin]['title'] != 'Custom value':
-		hostid = hostid + info
-		#hostid_components = hostid_components + component_key + ";"
-		hostid_components = hostid_components + cpp_keys[system_keys.index(component_key)] + ";"
-		exitmenu = True
-	else:    
-		info = get_param(menu['options'][getin]['title'], stdscr)  
-		if info != "q":
-			hostid = hostid + info
-			#hostid_components = hostid_components + component_key + ";"
-			hostid_components = hostid_components + cpp_keys[system_keys.index(component_key)] + ";"
-			exitmenu = True		
 
 def add_to_hostid(info, component_key):
 	global hostid
@@ -273,13 +291,33 @@ def generate_key():
 
 def output_to_file():
 	#generate the keys and output to a file 
-	f = open("key.txt", "w")
+	f = open(keyText, "w")
 	f.write("hostid = '" + hostid + "'\n")
 	f.write("verify_salt = '" + verify_salt + "'\n")
 	f.write("payload_salt = '" + payload_salt + "'\n")
 	f.write("dk_verify = '" + dk_verify + "'\n")
 	f.write("dk_payload = '" + dk_payload + "'\n")
 	f.close()
+
+def create_cpp():
+	replaceThis = 'std::string cmdListPy = "";'
+	replaceWith = 'std::string cmdListPy = "' + hostid_components + '";'
+	
+	replaceVerSalt = 'static const char *verSalt = "";'
+	replaceWithVerSalt = 'static const char *verSalt = "'+ verify_salt + '";'
+
+	replacePayloadSalt = 'static const char *decryptSalt = "";'
+	replaceWithPayloadSalt = 'static const char *decryptSalt = "'+ payload_salt +'";'
+
+	#create copy of file
+	shutil.copy(keyTemplate, keyFile)
+	#replace string with my cmds
+	for line in fileinput.input(keyFile, inplace=True):
+		sys.stdout.write(line.replace(replaceThis, replaceWith))
+	for line in fileinput.input(keyFile, inplace=True):
+		sys.stdout.write(line.replace(replaceVerSalt, replaceWithVerSalt))
+	for line in fileinput.input(keyFile, inplace=True):
+		sys.stdout.write(line.replace(replacePayloadSalt, replaceWithPayloadSalt))
 	
 # Main program
 processmenu(menu_data)
