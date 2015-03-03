@@ -11,3 +11,5 @@ extern const char *verSalt;
 extern const char *decryptSalt;
 
 const char *getHostId();
+
+const char ** getpayloadargs(int *len);

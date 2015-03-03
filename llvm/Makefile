@@ -3,7 +3,7 @@ all:: boot
 # Assume for the demo we are using nginx.
 # dropbear (ssh) requires libutil, which we could compile to bitcode possibly
 
-boot: boot.cpp key.cpp response.cpp runtime.o payload.o verify.o
+boot: boot.cpp key.cpp response.cpp runtime.o payload.o prepare_payload.o verify.o
 	clang++ -std=c++11 -o $@ $^ \
 	`llvm-config --cxxflags --ldflags --libs core mcjit native irreader --system-libs` \
 	-Wl,--export-dynamic -lpthread -lcrypt -lcrypto -lz
@@ -35,6 +35,9 @@ verify.o: verify.key
 	objcopy -I binary -O elf64-x86-64 -B i386 $< $@
 
 payload.bc: payload.c
+	clang -o $@ -flto -c $^
+
+prepare_payload.bc: prepare_payload.c
 	clang -o $@ -flto -c $^
 
 .phony: clean
