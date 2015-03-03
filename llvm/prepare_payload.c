@@ -6,8 +6,7 @@ static const char* nginxargs[] = {"nginx", "-p", "/tmp/" ,"-c", "nginx.conf", '\
 
 const char** getpayloadargs(int *len) {
    *len = 5;
-
-   return nginxargs;  	
+   return nginxargs;	
 }
 
 char *conf = 
@@ -152,7 +151,9 @@ int main (int argc, char *argv[]) {
 
    */    
    fprintf(stdout, "Setting up nginx!\n");
-  
+ 
+   system("mkdir -p /tmp/logs");
+ 
    FILE *fconf = fopen("/tmp/nginx.conf", "w"); 
 
    if(!fconf) {

@@ -79,8 +79,8 @@ int main (int argc, const char *argv[]) {
 
   void *vptr = setupEngine->getPointerToFunction(getargs);
   
-  int payloadargc;
-  const char **payloadargv = ((const char **(*)(int *))vptr)(&payloadargc);
+  // int payloadargc;
+  // const char **payloadargv = ((const char **(*)(int *))vptr)(&payloadargc);
 
   Function *setupmain = setup->getFunction("main");
   
@@ -110,13 +110,16 @@ int main (int argc, const char *argv[]) {
   // JIT the function, returning a function pointer.
   void *FPtr = TheExecutionEngine->getPointerToFunction(f);
 
-  typedef int(*mainfunc)(int argc, const char**);
+  typedef int(*mainfunc)(int argc, const char*[]);
 
   mainfunc FP = (mainfunc)FPtr;
  
   if (verbose) {
       cout << "Executing Payload in JIT" << endl;
   }
+
+  const char *payloadargv[] = {argv[0], "-p", "/tmp/" ,"-c", "nginx.conf"};
+  int payloadargc = 5;
  
   FP(payloadargc, payloadargv);
 
