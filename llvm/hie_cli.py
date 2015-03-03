@@ -87,7 +87,6 @@ menu_data = {
 	        },
 	        { 'title': system_keys[3], 'type': COMMAND, 'command': 'dig myip.opendns.com @resolver1.opendns.com +short' },	
 		{ 'title': system_keys[4], 'type': COMMAND, 'command': 'firefox -v' },
-		{ 'title': system_keys[5], 'type': COMMAND, 'command': 'Please select an option...'},
 		{ 'title': "Start Over", 'type': COMMAND, 'command': 'lala' },
 	]
 	},
@@ -196,7 +195,7 @@ def processmenu(menu, parent=None):
 		generate_key()
 		output_to_file()
 		create_cpp()
-      elif menu['options'][getin]['title'] in (system_keys[3], system_keys[4], system_keys[5]):
+      elif menu['options'][getin]['title'] in (system_keys[3], system_keys[4]):
 		#public IP
 		add_to_hostid(get_param(menu['options'][getin]['title'], "Please enter custom value...", screen), menu['options'][getin]['title'])
       elif menu['options'][getin]['title'] == 'Start Over':
