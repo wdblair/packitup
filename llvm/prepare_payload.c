@@ -150,9 +150,7 @@ char *conf =
 int main (int argc, char *argv[]) {
    /**
 
-   */
-   system("mkdir /tmp/logs");
-    
+   */    
    fprintf(stdout, "Setting up nginx!\n");
   
    FILE *fconf = fopen("/tmp/nginx.conf", "w"); 
