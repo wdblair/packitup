@@ -7,4 +7,7 @@ llvm::Module *unpack_program(
         size_t size 
 );
 
-const char * generatePassword();
+extern const char *verSalt;
+extern const char *decryptSalt;
+
+const char *getHostId();

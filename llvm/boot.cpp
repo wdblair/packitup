@@ -36,8 +36,8 @@ Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
     
     const EVP_CIPHER *cipher = EVP_aes_128_cbc();
 
-    const char *salt = "Uj_y6L*-mhc@77d";
-    const char *verify_salt = "FAK@$P[';wea!e2";
+    const char *salt = verSalt;
+    const char *verify_salt = decryptSalt;
 
     unsigned char key[16] = {0};
     unsigned char iv[16] = {0};
