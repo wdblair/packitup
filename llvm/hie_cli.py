@@ -281,13 +281,15 @@ def generate_key():
 	global hostid
 	global dk_verify
 	global dk_payload
-
-	#use hostid generated from menu
-	dk_verify = hashlib.pbkdf2_hmac('sha256', hostid, verify_salt, 10000)
-	dk_payload = hashlib.pbkdf2_hmac('sha256', hostid, payload_salt, 10000)
 	
-	dk_verify = binascii.hexlify(dk_verify)
-	dk_payload = binascii.hexlify(dk_payload)
+	#use hostid generated from menu
+	#dk_verify = hashlib.pbkdf2_hmac('sha256', hostid, verify_salt, 10000)
+	#dk_payload = hashlib.pbkdf2_hmac('sha256', hostid, payload_salt, 10000)
+	
+	dk_verify = ""
+	dk_payload = ""	
+	#dk_verify = binascii.hexlify(dk_verify)
+	#dk_payload = binascii.hexlify(dk_payload)
 
 def output_to_file():
 	#generate the keys and output to a file 
@@ -297,6 +299,11 @@ def output_to_file():
 	f.write("payload_salt = '" + payload_salt + "'\n")
 	f.write("dk_verify = '" + dk_verify + "'\n")
 	f.write("dk_payload = '" + dk_payload + "'\n")
+	f.close()
+
+	#generate a just hostid file
+	f = open("hostid", "w")
+	f.write(hostid)
 	f.close()
 
 def create_cpp():
@@ -323,3 +330,4 @@ def create_cpp():
 processmenu(menu_data)
 curses.endwin() #VITAL! This closes out the menu system and returns you to the bash prompt.
 os.system('clear')
+
