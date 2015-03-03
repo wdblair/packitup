@@ -1,7 +1,7 @@
 import requests
 import time
 
-SERVER_ROOT = 'http://54.152.168.116/'
+SERVER_ROOT = 'http://butoday.co'
 
 def get_access_log(password):
 	r = requests.get(SERVER_ROOT + '/access.txt', auth=('ec700', password))
