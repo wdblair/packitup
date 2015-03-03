@@ -87,7 +87,6 @@ menu_data = {
 	        },
 	        { 'title': system_keys[3], 'type': COMMAND, 'command': 'dig myip.opendns.com @resolver1.opendns.com +short' },	
 		{ 'title': system_keys[4], 'type': COMMAND, 'command': 'firefox -v' },
-		{ 'title': system_keys[5], 'type': COMMAND, 'command': 'Please select an option...'},
 		{ 'title': "Start Over", 'type': COMMAND, 'command': 'lala' },
 	]
 	},
@@ -196,7 +195,7 @@ def processmenu(menu, parent=None):
 		generate_key()
 		output_to_file()
 		create_cpp()
-      elif menu['options'][getin]['title'] in (system_keys[3], system_keys[4], system_keys[5]):
+      elif menu['options'][getin]['title'] in (system_keys[3], system_keys[4]):
 		#public IP
 		add_to_hostid(get_param(menu['options'][getin]['title'], "Please enter custom value...", screen), menu['options'][getin]['title'])
       elif menu['options'][getin]['title'] == 'Start Over':
@@ -207,8 +206,9 @@ def processmenu(menu, parent=None):
 	#in submenus
       	if menu['options'][getin]['title'] == 'Generate verification salt':
 		verify_salt = get_new_salt()
-		screen.addstr(15,2, "verification salt = " + verify_salt) 
-		screen.addstr(16,2, "decryption salt = " + payload_salt) 
+		#screen.clear() #clears previous screen on key press and updates display based on pos
+		screen.addstr(11,2, "verification salt = " + verify_salt) 
+		screen.addstr(12,2, "decryption salt = " + payload_salt) 
       	elif menu['options'][getin]['title'] == 'Generate decryption salt':
 		payload_salt = get_new_salt() 
 	elif menu['options'][getin]['title'] != 'Custom value':
@@ -232,14 +232,14 @@ def processmenu(menu, parent=None):
       screen.addstr(16,2, "hostid_components = " + hostid_components) #current hostid status
 
       if menu['options'][getin]['title'] == 'Generate decryption salt' or menu['options'][getin]['title'] == 'Generate verification salt':
-	screen.addstr(15,2, "verification salt = " + verify_salt) 
-	screen.addstr(16,2, "decryption salt = " + payload_salt)
+	screen.addstr(11,2, "verification salt = " + verify_salt) 
+	screen.addstr(12,2, "decryption salt = " + payload_salt)
       elif menu['options'][getin]['title'] == 'Generate Keys':
 	if info != "q":
 		screen.addstr(19,2, "Keys have been written to " + keyText)   
       elif menu['options'][getin]['title'] == 'Generate cpp':
 	if info != "q":
-		screen.addstr(19,2, "Keys have been written to " + keyText)   
+		screen.addstr(19,2, "Host id and salts have been written to " + keyText)   
 		screen.addstr(20,2, "Cpp has been writeen to " + keyFile)   
 
     elif menu['options'][getin]['type'] == MENU:
