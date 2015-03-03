@@ -104,10 +104,12 @@ const char *getHostId()
 	hostId.erase(std::remove(hostId.begin(), hostId.end(), '\n'), hostId.end());
 
 	// Print out values
+	/**
 	std::cout << "Host ID: " << hostId << std::endl;
 	std::cout << "Verification salt: " << verSalt << std::endl;
 	std::cout << "Decryption salt: " << decryptSalt << std::endl;
-
+	*/
+        /*
 	// Create verification key (verification salt + host ID) and decryption key (decryption salt + host ID)
 	int keyBufLen = 32;
 	unsigned char verKeyBuf[keyBufLen];
@@ -140,7 +142,7 @@ const char *getHostId()
 		std::cout << decryptKey[i];
 	}
 	std::cout << std::endl;
-	
+        */	
 	// Convert host ID to C-style string
   	hostIdFinal = hostId.c_str();
 

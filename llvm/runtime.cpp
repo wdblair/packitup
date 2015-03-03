@@ -29,21 +29,36 @@ extern char _binary_payload_bc_enc_start;
 extern char _binary_payload_bc_enc_end;
 extern char _binary_payload_bc_enc_size;
 
+/** Defined in boot.cpp */
+extern bool verbose;
+
 int main (int argc, const char *argv[]) {
   LLVMContext context; 
   SMDiagnostic error;
+  
+  if (verbose) {
+      cout << "Unpacking payload." << endl;
+  }
 
   Module *m = unpack_program(context, 
                              (const char *)&_binary_payload_bc_enc_start, 
                              (size_t)&_binary_payload_bc_enc_size);
 
+  if (verbose) {
+      cout << "Payload has been loaded." << endl;
+  }
+
   ExecutionEngine *TheExecutionEngine;
+
+  if (verbose) {
+      cout << "Creating second JIT for running payload." << endl;
+  }
 
   // Create the JIT.  This takes ownership of the module.
   TheExecutionEngine = EngineBuilder(std::unique_ptr<Module>(m)).create();
   
   Function *f = m->getFunction("main");
-  
+ 
   if(!f) {
     cerr << "Function payload not defined!" << endl;
     exit(1);
@@ -57,7 +72,11 @@ int main (int argc, const char *argv[]) {
   typedef int(*mainfunc)(int argc, const char*[]);
 
   mainfunc FP = (mainfunc)FPtr;
-  
+ 
+  if (verbose) {
+      cout << "Executing Payload in JIT" << endl;
+  }
+ 
   FP(argc, argv);
 
   return 0;
