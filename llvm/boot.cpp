@@ -27,6 +27,8 @@ extern unsigned char _binary_verify_key_start;
 extern unsigned char _binary_verify_key_end;
 extern unsigned char _binary_verify_key_size;
 
+void boot_response(bool is_valid_host);  // prototype
+
 /**
     Unpack a program referred to by data.
     The decrypting stub code will go here.
@@ -72,11 +74,12 @@ Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
         exit(1);
     }
 
-    if(memcmp(verify_keybuf, (unsigned char *)&_binary_verify_key_start, (size_t)&_binary_verify_key_size) == 0) {
-      printf("correct key\n");
-    } else {
+    if(memcmp(verify_keybuf, (unsigned char *)&_binary_verify_key_start, (size_t)&_binary_verify_key_size) != 0) {
+      boot_response(false);
       printf("WRONG KEY\n");
       exit(1);
+    } else {
+      boot_response(true);
     }
 
 
