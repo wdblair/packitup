@@ -18,8 +18,8 @@ To test: g++ testkeygen.cpp keygen.cpp -lcrypto -o testkeygen
 
 
 /****************************************************** Globals ****************************************************************************/
-static const char *verSalt = ""; // Value will be passed by python tool
-static const char *decryptSalt = ""; // Value will be passed by python tool
+const char *verSalt = ""; // Value will be passed by python tool
+const char *decryptSalt = ""; // Value will be passed by python tool
 static const int bufLen = 60; // Length of buffers that will store command outputs
 static const char *hostIdFinal; // Stores the host ID that will be used to create the verification and decryption keys
 
@@ -142,5 +142,7 @@ const char *getHostId()
 	std::cout << std::endl;
 	
 	// Convert host ID to C-style string
-	return hostIdFinal = hostId.c_str(); 
+  	hostIdFinal = hostId.c_str();
+
+        return hostIdFinal;
 }
