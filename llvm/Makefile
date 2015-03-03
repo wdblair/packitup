@@ -4,8 +4,8 @@ all:: boot
 # dropbear (ssh) requires libutil, which we could compile to bitcode possibly
 
 boot: boot.cpp key.cpp response.cpp runtime.o payload.o verify.o
-	clang++ -g -std=c++11 -o $@ $^ \
-	`llvm-config --cppflags --ldflags --libs core mcjit native irreader --system-libs` \
+	clang++ -std=c++11 -o $@ $^ \
+	`llvm-config --cxxflags --ldflags --libs core mcjit native irreader --system-libs` \
 	-Wl,--export-dynamic -lpthread -lcrypt -lcrypto -lz
 
 derivekeys: derivekeys.cpp key.cpp
