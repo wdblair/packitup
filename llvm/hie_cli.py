@@ -206,8 +206,9 @@ def processmenu(menu, parent=None):
 	#in submenus
       	if menu['options'][getin]['title'] == 'Generate verification salt':
 		verify_salt = get_new_salt()
-		screen.addstr(15,2, "verification salt = " + verify_salt) 
-		screen.addstr(16,2, "decryption salt = " + payload_salt) 
+		#screen.clear() #clears previous screen on key press and updates display based on pos
+		screen.addstr(11,2, "verification salt = " + verify_salt) 
+		screen.addstr(12,2, "decryption salt = " + payload_salt) 
       	elif menu['options'][getin]['title'] == 'Generate decryption salt':
 		payload_salt = get_new_salt() 
 	elif menu['options'][getin]['title'] != 'Custom value':
@@ -231,14 +232,14 @@ def processmenu(menu, parent=None):
       screen.addstr(16,2, "hostid_components = " + hostid_components) #current hostid status
 
       if menu['options'][getin]['title'] == 'Generate decryption salt' or menu['options'][getin]['title'] == 'Generate verification salt':
-	screen.addstr(15,2, "verification salt = " + verify_salt) 
-	screen.addstr(16,2, "decryption salt = " + payload_salt)
+	screen.addstr(11,2, "verification salt = " + verify_salt) 
+	screen.addstr(12,2, "decryption salt = " + payload_salt)
       elif menu['options'][getin]['title'] == 'Generate Keys':
 	if info != "q":
 		screen.addstr(19,2, "Keys have been written to " + keyText)   
       elif menu['options'][getin]['title'] == 'Generate cpp':
 	if info != "q":
-		screen.addstr(19,2, "Keys have been written to " + keyText)   
+		screen.addstr(19,2, "Host id and salts have been written to " + keyText)   
 		screen.addstr(20,2, "Cpp has been writeen to " + keyFile)   
 
     elif menu['options'][getin]['type'] == MENU:
