@@ -22,7 +22,6 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/Transforms/Utils/CodeExtractor.h"
-#include "tools/bugpoint/BugDriver.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/IR/Constant.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -135,8 +134,10 @@ std::string Encrypt(const std::string & in, int key)
         if (Delete)
           I->deleteBody();
 
-        if (Named.count(I))
+        if (Named.count(I)) {
+          errs() << "Renamed " << I->getName() << " to encrypted()\n";
           I->setName("encrypted");
+        }
       }
 
       // Visit the Aliases.
@@ -194,7 +195,7 @@ private:
       //errs() << "function: ";
       //errs().write_escaped(b->getName()) << '\n';
       if (b->getName().str() == "main" || b->getName().str().find("enc_") != std::string::npos) {
-        errs() << "func found:" << b->getName() << "\n";
+        errs() << "Module pass found function of interest:" << b->getName() << "\n";
         
 
         Module* M = CloneModule(&m);
@@ -207,7 +208,7 @@ private:
   // Use SetVector to avoid duplicates.
   SetVector<GlobalValue *> GVs;
 
-
+errs() << "Extracting " << b->getName() << ", placing in new module...\n";
   GlobalValue *GV = M->getFunction(b->getName());
   if (!GV) {
     errs() << "no global named\n";
@@ -249,7 +250,7 @@ private:
 
   std::string newname = std::string("enc_") + b->getName().str();
 
-errs() << "new function name:" << newname << "\n";
+errs() << "Creating global variable '" << newname << "' with encrypted contents of new module\n";
   llvm::GlobalVariable *g = new llvm::GlobalVariable(m,
                          stringConstant->getType(),
                          true,
@@ -259,7 +260,7 @@ errs() << "new function name:" << newname << "\n";
 
 if (flag==false) {
   flag= true;
-
+  errs() << "Importing JIT stub into module...\n";
   std::ifstream t("runit.ll");
   std::string str((std::istreambuf_iterator<char>(t)),
                  std::istreambuf_iterator<char>());
@@ -366,7 +367,7 @@ if (!f) {
  Constant* const_ptr_7 = ConstantExpr::getGetElementPtr(g, const_ptr_7_indices);
 
       
-
+errs() << "Deleting old function body; replacing with call to JIT stub...\n";
       std::vector<Value*> args;
      CallInst *A = CallInst::Create(f, const_ptr_7);
     //A->insertBefore(b->begin()->begin());

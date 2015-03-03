@@ -28,7 +28,7 @@ const char osCmd[] = "uname -o | sed \'s/.*\\///g\'"; // sed edits "GNU/Linux" t
 const char linuxDistroCmd[] = "lsb_release -is"; // Returns the Linux distribution type (ex. Ubuntu, Kali, etc.)
 const char codeNameCmd[] = "lsb_release -cs"; // Returns the code name of Linux distribution release (ex. trusty, moto, etc.)
 const char langCmd[] = "echo $LANG"; // Returns language environment variable
-const char firefoxVerCmd[] = "firefox -v | sed \'s/^.*Firefox/Firefox\\//\' | sed \'s/ //g\'| sed \'s/.[^.]*$//g\'"; // sed edits "Mozilla Firefox 35.0.1" to "Firefox/35.0" to match request header output
+const char firefoxVerCmd[] = "firefox -v | sed \'s/^.*Firefox/Firefox\\//\' | sed \'s/ //g\'| sed \'s/\\..*//g\'"; // sed edits "Mozilla Firefox 35.0.1" to "Firefox/35" to match request header output
 const char extIpCmd[] = "dig @resolver1.opendns.com myip.opendns.com +short"; // The dig command queries DNS name servers for DNS-related info...this command asks the name server "resolver1.opendns.com" for the machine's external IP address via "myip.opendns.com" and returns only the IP address via "+short" 
 		
 /****************************************************** Function(s) ************************************************************************/

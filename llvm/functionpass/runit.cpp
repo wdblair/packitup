@@ -27,6 +27,7 @@ std::string Encrypt(const std::string & in, int key)
 }
 
 extern "C" void runit (const char *bitcode) {
+  std::cout << "Function called. Entering JIT stub..." << std::endl;
   LLVMContext context;
   SMDiagnostic error;
   LLVMInitializeNativeTarget();
@@ -45,13 +46,14 @@ extern "C" void runit (const char *bitcode) {
 
   // Create the JIT.  This takes ownership of the module.
       std::string ErrStr;
-  
+  std::cout << "Creating JIT ExecutionEngine for provided bitcode" << std::endl;
   ExecutionEngine *TheExecutionEngine;
   TheExecutionEngine = EngineBuilder(std::unique_ptr<Module>(M)).setErrorStr(&ErrStr).create();
 
   if (!TheExecutionEngine) {
     std::cout << "ERR:" << ErrStr << "\n";
   }
+  std::cout << "List of functions in module:" << std::endl;
      Module::iterator be = M->begin(), ee = M->end();
     for (; be != ee; ++be) {
       std::cout << "JIT found function: ";
@@ -62,6 +64,7 @@ extern "C" void runit (const char *bitcode) {
   if (!M) {
     std::cout << "ERR\n";
   }
+  std::cout << "Running encrypted function" << std::endl;
   Function *f = M->getFunction("encrypted");
   
   if(!f) {
