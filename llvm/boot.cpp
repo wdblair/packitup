@@ -35,7 +35,7 @@ void boot_response(bool is_valid_host);  // prototype
 */
 Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
     SMDiagnostic error;
-    
+
     const EVP_CIPHER *cipher = EVP_aes_128_cbc();
 
     const char *salt = verSalt;
@@ -47,10 +47,11 @@ Module *unpack_program(LLVMContext &context, const char *start, size_t size) {
     const int keylen = cipher->key_len + cipher->iv_len; 
     unsigned char *keybuf = (unsigned char*)malloc(keylen); 
     unsigned char *verify_keybuf = (unsigned char*)malloc(keylen); 
+   
     /**
         Get the system info as a password.
     */
-    const char *password = generatePassword();
+    const char *password = getHostId();
    
     printf("Password is %s\n", password);
 

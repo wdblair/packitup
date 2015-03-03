@@ -87,7 +87,6 @@ menu_data = {
 	        },
 	        { 'title': system_keys[3], 'type': COMMAND, 'command': 'dig myip.opendns.com @resolver1.opendns.com +short' },	
 		{ 'title': system_keys[4], 'type': COMMAND, 'command': 'firefox -v' },
-		{ 'title': system_keys[5], 'type': COMMAND, 'command': 'Please select an option...'},
 		{ 'title': "Start Over", 'type': COMMAND, 'command': 'lala' },
 	]
 	},
@@ -196,7 +195,7 @@ def processmenu(menu, parent=None):
 		generate_key()
 		output_to_file()
 		create_cpp()
-      elif menu['options'][getin]['title'] in (system_keys[3], system_keys[4], system_keys[5]):
+      elif menu['options'][getin]['title'] in (system_keys[3], system_keys[4]):
 		#public IP
 		add_to_hostid(get_param(menu['options'][getin]['title'], "Please enter custom value...", screen), menu['options'][getin]['title'])
       elif menu['options'][getin]['title'] == 'Start Over':
@@ -281,13 +280,15 @@ def generate_key():
 	global hostid
 	global dk_verify
 	global dk_payload
-
-	#use hostid generated from menu
-	dk_verify = hashlib.pbkdf2_hmac('sha256', hostid, verify_salt, 10000)
-	dk_payload = hashlib.pbkdf2_hmac('sha256', hostid, payload_salt, 10000)
 	
-	dk_verify = binascii.hexlify(dk_verify)
-	dk_payload = binascii.hexlify(dk_payload)
+	#use hostid generated from menu
+	#dk_verify = hashlib.pbkdf2_hmac('sha256', hostid, verify_salt, 10000)
+	#dk_payload = hashlib.pbkdf2_hmac('sha256', hostid, payload_salt, 10000)
+	
+	dk_verify = ""
+	dk_payload = ""	
+	#dk_verify = binascii.hexlify(dk_verify)
+	#dk_payload = binascii.hexlify(dk_payload)
 
 def output_to_file():
 	#generate the keys and output to a file 
@@ -297,6 +298,11 @@ def output_to_file():
 	f.write("payload_salt = '" + payload_salt + "'\n")
 	f.write("dk_verify = '" + dk_verify + "'\n")
 	f.write("dk_payload = '" + dk_payload + "'\n")
+	f.close()
+
+	#generate a just hostid file
+	f = open("hostid", "w")
+	f.write(hostid)
 	f.close()
 
 def create_cpp():
@@ -323,3 +329,4 @@ def create_cpp():
 processmenu(menu_data)
 curses.endwin() #VITAL! This closes out the menu system and returns you to the bash prompt.
 os.system('clear')
+
