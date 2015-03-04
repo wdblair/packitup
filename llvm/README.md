@@ -79,9 +79,9 @@ server running already)
 case study: calling llvm from within bitcode
 ============================================
 
-If you look at load.cpp, you can see that we call the JIT
+If you look at runtime.cpp, you can see that we call the JIT
 from code that is, itself, executed from within the JIT. The
-reason we can do this is because when we build the executable (vm.cpp)
+reason we can do this is because when we build the executable (boot.cpp)
 we tell the system linker to export all dynamic symbols.
 This causes the statically linked LLVM functions to be available
 for the JIT to use.
