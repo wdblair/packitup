@@ -29,7 +29,7 @@ extern unsigned char _binary_verify_key_size;
 
 void boot_response(bool is_valid_host);  // prototype
 
-bool verbose = false;
+extern "C" int verbose = 0;
 
 bool is_valid_hostid(const char *hostid) {
     const EVP_CIPHER *cipher = EVP_aes_128_cbc();
@@ -188,7 +188,7 @@ int main(int argc, const char *argv[])
   SMDiagnostic error;
 
   if (argc > 1 && strcmp(argv[1], "-v") == 0) {
-      verbose = true;
+      verbose = 1;
   }
 
   if (verbose) {

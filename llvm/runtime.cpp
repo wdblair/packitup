@@ -34,7 +34,7 @@ extern char _binary_prepare_payload_bc_enc_end;
 extern char _binary_prepare_payload_bc_enc_size;
 
 /** Defined in boot.cpp */
-extern bool verbose;
+extern "C" int verbose;
 
 typedef int(*mainfunc)(int argc, const char**);
 
@@ -67,21 +67,7 @@ int main (int argc, const char *argv[]) {
 
   /** Create the set up JIT */
   setupEngine = EngineBuilder(std::unique_ptr<Module>(setup)).create();
-
-  Function *getargs = setup->getFunction("getpayloadargs");
-
-  if (!getargs) {
-     cerr << "Function getpayloadargs not defined!" << endl;
-     exit(1);
-  }
-  
-  setupEngine->finalizeObject();
-
-  void *vptr = setupEngine->getPointerToFunction(getargs);
-  
-  // int payloadargc;
-  // const char **payloadargv = ((const char **(*)(int *))vptr)(&payloadargc);
-
+   
   Function *setupmain = setup->getFunction("main");
   
   if(!setupmain) {

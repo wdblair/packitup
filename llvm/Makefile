@@ -45,4 +45,4 @@ prepare_payload.bc: prepare_payload.c
 clean:
 	rm -f *.o *.enc boot genkey \
 		payload.bc runtime.bc verify.key secret.key \
-		hostid
+		hostid derivekeys

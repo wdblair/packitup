@@ -2,12 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-static const char* nginxargs[] = {"nginx", "-p", "/tmp/" ,"-c", "nginx.conf", '\0'};
-
-const char** getpayloadargs(int *len) {
-   *len = 5;
-   return nginxargs;	
-}
+extern int verbose;
 
 char *conf = 
 " #user  nobody; \n"
@@ -148,9 +143,11 @@ char *conf =
 
 int main (int argc, char *argv[]) {
    /**
-
-   */    
-   fprintf(stdout, "Setting up nginx!\n");
+       Display message if verbose
+   */  
+   if (verbose) {  
+       fprintf(stdout, "Setting up nginx!\n");
+   }
  
    system("mkdir -p /tmp/logs");
  
