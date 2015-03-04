@@ -45,7 +45,14 @@ compiling nginx
 Lots of programs built with autotools are really finicky when you
 want to use clang with the LLVM Gold plugin to produce bitcode for
 object files instead of native code. Nonetheless, nginx's configure
-script doesn't interrogate clang as much as others.
+script doesn't interrogate clang as much as others. It's important
+that gold is set up as your system linker. 
+
+If it isn't, clang won't be able to produce executables from compiled 
+bitcode files. This shouldn't be a big deal since we just want bitcode,
+but most configure scripts test this explicitely and fail if it can't
+be done. For this reason, setting up gold as your linker makes the whole
+./configure && make process a lot smoother. 
 
 First, you need your system linker to use the Gold plugin. Next,
 run
