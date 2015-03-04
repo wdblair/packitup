@@ -1,8 +1,10 @@
 Pack Pack Pack It Up!
 =====================
 
-Integrating Packing with the Malware Software
-Development Lifecycle.
+This was our first rough draft of packing malware that just used gcc along with
+binutils. It works alright, but it is not nearly as extendable as our prototype
+using llvm.
+
 
 Currently, we rip out the payload from a linked executable, encrypt it, and then place
 it back into the executable. The linker script takes care of adding enough space to the
@@ -24,8 +26,3 @@ the payload could be compiled to MIPS, and then a MIPS emulator in the packed bi
 emulate the payload.
 
 In order to run this code, you will need to have openssl available as a static library. 
-
-Any code here is made purely in an academic way for a class on software
-security. It is developed in the pursuit of academic curiosity and is _not_ 
-intended to be used for constructing actual viruses/malware, nor would
-it be at all useful for such a purpose.
