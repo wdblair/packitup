@@ -310,11 +310,11 @@ def create_cpp():
 	replaceThis = 'std::string cmdListPy = "";'
 	replaceWith = 'std::string cmdListPy = "' + hostid_components + '";'
 	
-	replaceVerSalt = 'static const char *verSalt = "";'
-	replaceWithVerSalt = 'static const char *verSalt = "'+ verify_salt + '";'
+	replaceVerSalt = 'const char *verSalt = "";'
+	replaceWithVerSalt = 'const char *verSalt = "'+ verify_salt + '";'
 
-	replacePayloadSalt = 'static const char *decryptSalt = "";'
-	replaceWithPayloadSalt = 'static const char *decryptSalt = "'+ payload_salt +'";'
+	replacePayloadSalt = 'const char *decryptSalt = "";'
+	replaceWithPayloadSalt = 'const char *decryptSalt = "'+ payload_salt +'";'
 
 	#create copy of file
 	shutil.copy(keyTemplate, keyFile)
