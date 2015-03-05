@@ -15,7 +15,7 @@ To build a bitcode version of nginx statically linked with libpcre
   buildnginx.sh
 
 It will download libpcre and nginx and build them to a bitcode payload that
-will be copied to packitup/payload.bc. Next, you can go into packitup and run
+will be copied to packitup/llvm/payload.bc. Next, you can go into llvm and run
 
   make
 
