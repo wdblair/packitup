@@ -16,6 +16,8 @@
 
 using namespace llvm;
 
+// Basic Caesar cipher encryption.
+// Cited: http://stackoverflow.com/questions/12761720/c-simple-caesar-cipher-algorithm
 std::string Encrypt(const std::string & in, int key)
 {
     std::string out(in);
@@ -26,6 +28,9 @@ std::string Encrypt(const std::string & in, int key)
     return out;
 }
 
+// Stub for decrypting bitcode containing a function of interest, then running that
+// function with LLVM's JIT. The function must be named "encrypted".
+// extern "C" necessary to prevent symbol mangling.
 extern "C" void runit (const char *bitcode) {
   std::cout << "Function called. Entering JIT stub..." << std::endl;
   LLVMContext context;
