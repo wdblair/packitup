@@ -19,12 +19,19 @@ will be copied to packitup/llvm/payload.bc. Next, you can go into llvm and run
 
   make
 
-When you generate the key file, please save it to key.cpp.
+When you generate the key file, please save it to key.cpp. For generating the
+hostid, probably the easiest thing is to just make it based off of the language,
+en_US.UTF-8. This will allow the malware to run in the container, and you can 
+change the LANG environment variable to see the malware fail. It will display
+a loading bar when it is on an invalid target. 
 
 This creates the boot program. After you run it, nginx should be running on 
 port 8080. Try viewing its output using the following
 
    curl http://localhost:8080/person/secret.txt
+
+nginx is configured to set up a directory index at /home, so this lets you
+remotely view the files in users' home directories.
 
 Index
 =====
