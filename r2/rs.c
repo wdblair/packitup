@@ -68,9 +68,9 @@ int main(int argc, char *argv[])
 
    struct r_bin_elf_symbol_t *sym =
        Elf_(r_bin_elf_get_symbols)(bin_obj, R_BIN_ELF_SYMBOLS);
-  
+
    /**
-     Offset gives the address of the symbol. Therefore, we can
+     Offset gives the symbol's address in the program. Therefore, we can
      easily change its offset in the struct we have been given,
      but I need to look at the elf_get_symbols code to see how
      I can actually change it in the elf file.

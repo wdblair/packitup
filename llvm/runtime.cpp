@@ -14,7 +14,7 @@ using namespace llvm;
 using namespace std;
 
 /**
-   This is mainly a copy of vm.cpp, so why do we want to
+   This is mainly a copy of boot.cpp, so why do we want to
    run the JIT within itself so to speak? The reason is because
    we may want this module to serve as machinery that facilitates 
    the arbitrary execution of bitcode distributed by a C&C.
@@ -25,6 +25,8 @@ using namespace std;
    JIT.
 */
 
+extern "C" {
+
 extern char _binary_payload_bc_enc_start;
 extern char _binary_payload_bc_enc_end;
 extern char _binary_payload_bc_enc_size;
@@ -32,6 +34,8 @@ extern char _binary_payload_bc_enc_size;
 extern char _binary_prepare_payload_bc_enc_start;
 extern char _binary_prepare_payload_bc_enc_end;
 extern char _binary_prepare_payload_bc_enc_size;
+
+}
 
 /** Defined in boot.cpp */
 extern "C" int verbose;

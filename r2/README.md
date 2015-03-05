@@ -9,4 +9,4 @@ payload sections in order to put different modules or obfuscated
 versions of their current modules inside of them.
 
 The rs program can resize the payload section of our malware
-and create a new, functioning copy.
+and create a new, functioning copy. 
