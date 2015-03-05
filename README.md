@@ -6,6 +6,23 @@ security. It is developed out of academic curiosity and is _not_ intended to be
 used for constructing actual viruses/malware, nor would it be at all useful 
 for such a purpose.
 
+Evaluating Our Code
+===================
+
+To build a bitcode version of nginx statically linked with libpcre 
+(also in bitcode), run 
+
+  buildnginx.sh
+
+It will download libpcre and nginx and build them to a bitcode payload that
+will be copied to packitup/payload.bc. Next, you can go into packitup and run
+
+  make
+
+When you generate the key file, please save it to key.cpp.
+
+Index
+=====
 
 This repo contains the following directories.
 
