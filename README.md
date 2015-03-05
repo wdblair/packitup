@@ -27,6 +27,13 @@ Our final prototype that packs programs compiled to LLVM bitcode into an executa
 At run-time, the bitcode is extracted and ran through the LLVM JIT, which is statically
 linked with the executable.
 
+llvm/functionpass
+====
+
+A proof-of-concept of encryption with function-level granularity.
+Uses LLVM's JIT and Pass Framework to package malware in such a way that each function
+is decrypted, run, and re-encrypted separately at runtime.
+
 r2
 ==
 
