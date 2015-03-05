@@ -21,6 +21,11 @@ will be copied to packitup/payload.bc. Next, you can go into packitup and run
 
 When you generate the key file, please save it to key.cpp.
 
+Once you run boot, nginx should be running on port 8080. Try viewing its output
+using the following
+
+   curl http://localhost:8080/person/secret.txt
+
 Index
 =====
 

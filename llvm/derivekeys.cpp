@@ -18,9 +18,11 @@ int main(int argc, const char *argv[]) {
 
 	const char *salt = decryptSalt;
 	const char *verify_salt = verSalt;
-  
-        printf("Using %s as the encryption salt", salt);
-        printf("Using %s as the verification salt", verify_salt);
+ 
+	printf("Using password = %s\n", password);
+ 
+        printf("Using %s as the encryption salt\n", salt);
+        printf("Using %s as the verification salt\n", verify_salt);
 
 	unsigned char key[16] = {0};
 	unsigned char iv[16] = {0};
@@ -29,6 +31,8 @@ int main(int argc, const char *argv[]) {
 	unsigned char *keybuf = (unsigned char*)malloc(keylen);
 	unsigned char *verify_keybuf = (unsigned char*)malloc(keylen);
 
+	printf("Keylen is %d\n", keylen);
+	
 	/**
 		Derive the encryption key and a verification key.
     	*/
@@ -59,10 +63,12 @@ int main(int argc, const char *argv[]) {
 	fclose(fp);
 
 	fp = fopen("secret.key", "w");
-	
+
+	printf("Saving encryption key.\n");
 	for(int i = 0; i < keylen; i++) {
 		fprintf(fp, "%02x", keybuf[i]);
 	}
-	
+        printf("\n");
+
 	fclose(fp);
 }

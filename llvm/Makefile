@@ -24,6 +24,8 @@ runtime.bc: runtime.cpp payload.bc
 hostid:
 	python hie_cli.py
 
+key.cpp: hostid
+
 secret.key: derivekeys hostid
 	./derivekeys `cat hostid`
 
@@ -45,4 +47,4 @@ prepare_payload.bc: prepare_payload.c
 clean:
 	rm -f *.o *.enc boot genkey \
 		payload.bc runtime.bc verify.key secret.key \
-		prepare_payload.bc hostid derivekeys
+		prepare_payload.bc hostid derivekeys key.cpp
