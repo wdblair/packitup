@@ -16,8 +16,11 @@ int main(int argc, const char *argv[]) {
 	const char *password = argv[1];
 	const EVP_CIPHER *cipher = EVP_aes_128_cbc();
 
-	const char *salt = verSalt;
-	const char *verify_salt = decryptSalt;
+	const char *salt = decryptSalt;
+	const char *verify_salt = verSalt;
+  
+        printf("Using %s as the encryption salt", salt);
+        printf("Using %s as the verification salt", verify_salt);
 
 	unsigned char key[16] = {0};
 	unsigned char iv[16] = {0};
