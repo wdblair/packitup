@@ -8,10 +8,10 @@ To run, simply use
 
 	make
 
-To view the human-readable IR assembly of the payload, convert the boot.s file
+To view the human-readable IR assembly of the payload, convert the boot.bc file
 to a boot.ll file
 
-	llvm-dis boot.s
+	llvm-dis boot.bc
 
 You can then see the encrypted global variables for each function of interest 
 in the payload, the new bodies of the payload functions, and the runit() function
