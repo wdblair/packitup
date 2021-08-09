@@ -1,10 +1,15 @@
-Pack! Pack! Pack it up!
-=======================
+Pack It Up
+==========
 
 Any code here is made purely for demonstration purposes for a class on software
 security. It is developed out of academic curiosity and is _not_ intended to be 
 used for constructing actual viruses/malware, nor would it be at all useful 
 for such a purpose.
+
+High Level Design
+=================
+
+This packer uses LLVM's just-in-time compilation engine to execute whole programs stored as bitcode within executable programs. This allows developers to pack complex software into an executable that can only be decrypted when executed in an environment specified by the developer. This prevents analysts from running the code in an analysis environment.
 
 Evaluating Our Code
 ===================
